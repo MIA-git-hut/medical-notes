@@ -22,6 +22,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '颅骨', link: '/解剖学/颅骨' },
+            { text: '测试笔记', link: '/解剖学/测试笔记' },
           ],
         },
       ],
