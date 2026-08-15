@@ -30,6 +30,7 @@ export default defineConfig({
       // 自动读取各科目文件夹里的 .md 文件生成目录，新建笔记后无需改这里
       '/解剖学/': autoSidebar('解剖学', '解剖学'),
       '/生理学/': autoSidebar('生理学', '生理学'),
+      '/公众号/': autoSidebar('公众号', '公众号'),
     },
 
     search: { provider: 'local' },
