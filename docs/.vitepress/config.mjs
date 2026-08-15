@@ -1,4 +1,16 @@
 import { defineConfig } from 'vitepress'
+import { readdirSync } from 'node:fs'
+import { join } from 'node:path'
+
+// 自动扫描科目文件夹里的 .md 文件生成侧边栏，新建笔记后无需改这里
+function autoSidebar(dir, label) {
+  const files = readdirSync(join('docs', dir)).filter((f) => f.endsWith('.md'))
+  const items = files.map((f) => ({
+    text: f.replace(/\.md$/, ''),
+    link: `/${dir}/${f.replace(/\.md$/, '')}`,
+  }))
+  return [{ text: label, collapsed: false, items }]
+}
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -15,27 +27,9 @@ export default defineConfig({
     ],
 
     sidebar: {
-      // 解剖学板块的左侧目录。新建笔记后，在这里加一行即可
-      '/解剖学/': [
-        {
-          text: '解剖学',
-          collapsed: false,
-          items: [
-            { text: '颅骨', link: '/解剖学/颅骨' },
-          ],
-        },
-      ],
-      // 生理学板块的左侧目录
-      '/生理学/': [
-        {
-          text: '生理学',
-          collapsed: false,
-          items: [
-            { text: '内环境与稳态', link: '/生理学/内环境稳态' },
-            { text: '心肌细胞的跨膜电位', link: '/生理学/心肌细胞跨膜电位' },
-          ],
-        },
-      ],
+      // 自动读取各科目文件夹里的 .md 文件生成目录，新建笔记后无需改这里
+      '/解剖学/': autoSidebar('解剖学', '解剖学'),
+      '/生理学/': autoSidebar('生理学', '生理学'),
     },
 
     search: { provider: 'local' },
