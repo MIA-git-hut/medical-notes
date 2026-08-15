@@ -8,7 +8,12 @@ const docsDir = join(dirname(fileURLToPath(import.meta.url)), '..')
 
 // 自动扫描科目文件夹里的 .md 文件生成侧边栏，新建笔记后无需改这里
 function autoSidebar(dir, label) {
-  const files = readdirSync(join(docsDir, dir)).filter((f) => f.endsWith('.md'))
+  let files = []
+  try {
+    files = readdirSync(join(docsDir, dir)).filter((f) => f.endsWith('.md'))
+  } catch {
+    // 文件夹为空时不会被 git 同步到服务器，忽略即可
+  }
   const items = files.map((f) => ({
     text: f.replace(/\.md$/, ''),
     link: `/${dir}/${f.replace(/\.md$/, '')}`,
