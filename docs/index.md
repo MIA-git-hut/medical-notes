@@ -4,7 +4,7 @@ layout: home
 hero:
   name: 我的医学笔记
   text: 个人医学学习整理
-  tagline: 用 Markdown 记录学习，按科目分类整理，GitHub 同步，Vercel 自动部署
+  tagline: 正气存内，邪不可干——把知识化为正气
   actions:
     - theme: brand
       text: 开始学习
