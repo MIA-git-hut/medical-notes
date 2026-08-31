@@ -15,7 +15,8 @@ hero:
 
 features:
   - title: 中药学
-    details: 四气五味，归经升降（待补充）
+    details: 四气五味，归经升降 · 知识库建设中
+    link: /中药学/
     icon: 🌿
   - title: 方剂学
     details: 君臣佐使，组方配伍（待补充）

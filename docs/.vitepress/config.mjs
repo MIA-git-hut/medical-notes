@@ -9,19 +9,35 @@ import { fileURLToPath } from 'node:url'
 // 以配置文件自身位置为基准定位 docs 目录，兼容本地与服务器环境
 const docsDir = join(dirname(fileURLToPath(import.meta.url)), '..')
 
-// 自动扫描科目文件夹里的 .md 文件生成侧边栏，新建笔记后无需改这里
-function autoSidebar(dir, label) {
-  let files = []
+// 递归扫描文件夹生成树形侧边栏，支持「科目/分类/笔记」多层结构
+function scanDir(rel) {
+  let entries = []
   try {
-    files = readdirSync(join(docsDir, dir)).filter((f) => f.endsWith('.md'))
+    entries = readdirSync(join(docsDir, rel), { withFileTypes: true })
   } catch {
-    // 文件夹为空时不会被 git 同步到服务器，忽略即可
+    // 文件夹不存在或为空时忽略
+    return []
   }
-  const items = files.map((f) => ({
-    text: f.replace(/\.md$/, ''),
-    link: `/${dir}/${f.replace(/\.md$/, '')}`,
-  }))
-  return [{ text: label, collapsed: false, items }]
+  const items = []
+  for (const e of entries.sort((a, b) => a.name.localeCompare(b.name, 'zh'))) {
+    if (e.name.endsWith('.md') && e.name !== 'index.md') {
+      items.push({
+        text: e.name.replace(/\.md$/, ''),
+        link: `/${rel}/${e.name.replace(/\.md$/, '')}`,
+      })
+    } else if (e.isDirectory() && !e.name.startsWith('.')) {
+      const children = scanDir(`${rel}/${e.name}`)
+      if (children.length > 0) {
+        items.push({ text: e.name, collapsed: false, items: children })
+      }
+    }
+  }
+  return items
+}
+
+// 自动生成科目侧边栏，新建笔记后无需改这里
+function autoSidebar(dir, label) {
+  return [{ text: label, collapsed: false, items: scanDir(dir) }]
 }
 
 export default withMermaid({
@@ -47,6 +63,7 @@ export default withMermaid({
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
+      { text: '中药学', link: '/中药学/' },
 
       { text: '公众号', link: '/公众号/秋，肺当时令' },
       { text: '使用指南', link: '/使用指南' },
