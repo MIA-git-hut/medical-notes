@@ -26,8 +26,8 @@ function autoSidebar(dir, label) {
 
 export default withMermaid({
   lang: 'zh-CN',
-  title: '我的医学笔记',
-  description: '个人医学学习笔记网站',
+  title: '溯本医源',
+  description: '个人中医学习笔记网站',
   lastUpdated: true,
   markdown: {
     config(md) {
@@ -47,15 +47,16 @@ export default withMermaid({
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
-      { text: '生理学', link: '/生理学/心肌细胞跨膜电位' },
+
       { text: '公众号', link: '/公众号/秋，肺当时令' },
       { text: '使用指南', link: '/使用指南' },
     ],
 
     sidebar: {
       // 自动读取各科目文件夹里的 .md 文件生成目录，新建笔记后无需改这里
-      '/解剖学/': autoSidebar('解剖学', '解剖学'),
-      '/生理学/': autoSidebar('生理学', '生理学'),
+      '/中药学/': autoSidebar('中药学', '中药学'),
+      '/方剂学/': autoSidebar('方剂学', '方剂学'),
+      '/推拿学/': autoSidebar('推拿学', '推拿学'),
       '/公众号/': autoSidebar('公众号', '公众号'),
     },
 
