@@ -1,4 +1,7 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
+import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
+import { katex } from '@mdit/plugin-katex'
 import { readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -21,11 +24,25 @@ function autoSidebar(dir, label) {
   return [{ text: label, collapsed: false, items }]
 }
 
-export default defineConfig({
+export default withMermaid({
   lang: 'zh-CN',
   title: '我的医学笔记',
   description: '个人医学学习笔记网站',
   lastUpdated: true,
+  markdown: {
+    config(md) {
+      md.use(katex)
+      md.use(groupIconMdPlugin)
+    },
+  },
+
+  vite: {
+    plugins: [groupIconVitePlugin()],
+  },
+
+  mermaid: {
+    theme: 'neutral',
+  },
 
   themeConfig: {
     nav: [
