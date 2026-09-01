@@ -11,7 +11,7 @@ hero:
       link: /使用指南
     - theme: alt
       text: 公众号
-      link: /公众号/秋，肺当令
+      link: /公众号/秋肺当时令
 
 features:
   - title: 中药学
