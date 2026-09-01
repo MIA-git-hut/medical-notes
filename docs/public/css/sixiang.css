@@ -46,6 +46,13 @@ body {
   height: 100%;
   pointer-events: none;
 }
+.su-name {
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", "SimSun", serif;
+  font-size: 11px;
+  fill: currentColor;
+  fill-opacity: 0.55;
+  letter-spacing: 1px;
+}
 
 /* ---------- 四象背景装饰（守四方，无框） ---------- */
 .beasts {
@@ -99,19 +106,10 @@ body {
 .site-nav a { color: #c6cddd; text-decoration: none; font-size: 16px; letter-spacing: 2px; transition: color 0.25s; }
 .site-nav a:hover { color: #fff; }
 
-/* ---------- 主标题（纯色月白，不裁剪） ---------- */
-.hero { text-align: center; padding: clamp(52px, 8vh, 90px) 0 34px; }
+/* ---------- 主区（无大标题，避免遮挡玄武） ---------- */
+.hero { text-align: center; padding: clamp(44px, 7vh, 76px) 0 30px; }
 .hero-kicker { color: var(--muted); letter-spacing: 6px; font-size: 14px; }
-.hero-title {
-  font-size: clamp(38px, 6.5vw, 58px);
-  letter-spacing: 10px;
-  font-weight: 400;
-  margin: 14px 0 10px;
-  color: #f0ead8;
-  text-shadow: 0 0 26px rgba(240, 234, 216, 0.22);
-}
-.hero-title .accent { color: var(--seal); text-shadow: 0 0 26px rgba(168, 50, 40, 0.35); }
-.hero-quote { color: #b9bec9; letter-spacing: 3px; font-size: 15px; }
+.hero-quote { color: #b9bec9; letter-spacing: 3px; font-size: 15px; margin-top: 10px; }
 .hero-actions { display: flex; gap: 16px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
 .btn {
   display: inline-block; padding: 10px 30px; border-radius: 999px;
