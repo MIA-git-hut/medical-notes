@@ -83,7 +83,7 @@ export default withMermaid({
       { text: '首页', link: '/' },
       { text: '中药学', link: '/中药学/' },
 
-      { text: '公众号', link: '/公众号/秋，肺当时令' },
+      { text: '公众号', link: '/公众号/秋肺当时令' },
       { text: '使用指南', link: '/使用指南' },
     ],
 
