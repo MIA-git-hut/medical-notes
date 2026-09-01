@@ -1,4 +1,4 @@
-/* 溯本医源 · 四象主题：静态星夜 + 线描四神兽徽章，零 JS 动画，轻量不卡 */
+/* 溯本医源 · 四象主题：星宿夜空 + 四神兽守四方 + 卡片入口，零 JS 动画 */
 :root {
   --night-1: #18233a;
   --night-2: #0d1424;
@@ -37,7 +37,54 @@ body {
     radial-gradient(ellipse at 50% -10%, var(--night-1) 0%, var(--night-2) 55%, var(--night-3) 100%);
 }
 
-.page { max-width: 1120px; margin: 0 auto; padding: 0 clamp(18px, 5vw, 48px) 40px; }
+/* ---------- 星宿背景层 ---------- */
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- 四象背景装饰（守四方，无框） ---------- */
+.beasts {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.beast {
+  position: absolute;
+  pointer-events: auto;
+  display: block;
+  text-decoration: none;
+  text-align: center;
+  color: var(--ink-gold);
+  transition: transform 0.25s, filter 0.25s;
+}
+.beast:hover { transform: scale(1.06); filter: drop-shadow(0 0 14px color-mix(in srgb, var(--q) 45%, transparent)); }
+.beast .totem { width: clamp(68px, 8vw, 100px); height: auto; display: block; margin: 0 auto; color: var(--q); }
+.beast h2 { font-size: clamp(17px, 1.9vw, 23px); font-weight: 400; letter-spacing: 6px; color: var(--q); margin-top: 6px; }
+.beast .q-sub { font-size: 12px; color: var(--muted); letter-spacing: 2px; line-height: 1.7; margin-top: 3px; }
+.beast .q-link { font-size: 13px; color: #c9d0dd; margin-top: 6px; letter-spacing: 2px; }
+.beast .q-link:hover { color: #fff; }
+.beast.soon { opacity: 0.5; }
+.beast.soon:hover { transform: none; filter: none; }
+
+.q-east { left: clamp(8px, 3vw, 44px); top: 50%; transform: translateY(-50%); }
+.q-west { right: clamp(8px, 3vw, 44px); top: 50%; transform: translateY(-50%); }
+.q-north { top: clamp(10px, 3vh, 30px); left: 50%; transform: translateX(-50%); }
+.q-south { bottom: clamp(10px, 3vh, 30px); left: 50%; transform: translateX(-50%); }
+
+/* ---------- 主体 ---------- */
+.page {
+  position: relative;
+  z-index: 2;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 5vw, 48px) 40px;
+}
 
 /* ---------- 头部 ---------- */
 .site-header { display: flex; align-items: center; gap: 20px; padding: 20px 0; flex-wrap: wrap; }
@@ -52,16 +99,18 @@ body {
 .site-nav a { color: #c6cddd; text-decoration: none; font-size: 16px; letter-spacing: 2px; transition: color 0.25s; }
 .site-nav a:hover { color: #fff; }
 
-/* ---------- 主标题 ---------- */
-.hero { text-align: center; padding: clamp(44px, 8vh, 84px) 0 36px; }
+/* ---------- 主标题（纯色月白，不裁剪） ---------- */
+.hero { text-align: center; padding: clamp(52px, 8vh, 90px) 0 34px; }
 .hero-kicker { color: var(--muted); letter-spacing: 6px; font-size: 14px; }
 .hero-title {
-  font-size: clamp(40px, 7vw, 64px); letter-spacing: 12px; font-weight: 400;
+  font-size: clamp(38px, 6.5vw, 58px);
+  letter-spacing: 10px;
+  font-weight: 400;
   margin: 14px 0 10px;
-  background: linear-gradient(180deg, #f6f1e2 20%, #c9c2a8 80%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  color: #f0ead8;
+  text-shadow: 0 0 26px rgba(240, 234, 216, 0.22);
 }
-.hero-title .accent { color: var(--seal); -webkit-text-fill-color: var(--seal); }
+.hero-title .accent { color: var(--seal); text-shadow: 0 0 26px rgba(168, 50, 40, 0.35); }
 .hero-quote { color: #b9bec9; letter-spacing: 3px; font-size: 15px; }
 .hero-actions { display: flex; gap: 16px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
 .btn {
@@ -75,8 +124,8 @@ body {
 .btn-ghost { border: 1px solid rgba(255, 255, 255, 0.25); color: #dfe2ea; }
 .btn-ghost:hover { box-shadow: 0 4px 18px rgba(255, 255, 255, 0.08); }
 
-/* ---------- 四象卡片 ---------- */
-.quad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 44px; }
+/* ---------- 入口卡片（框） ---------- */
+.quad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 40px; }
 @media (max-width: 900px) { .quad { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 520px) { .quad { grid-template-columns: 1fr; } }
 .quad-card {
@@ -87,14 +136,25 @@ body {
 }
 a.quad-card:hover {
   transform: translateY(-5px);
-  border-color: color-mix(in srgb, var(--q) 55%, transparent);
-  box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--q) 35%, transparent);
+  border-color: rgba(240, 234, 216, 0.35);
+  box-shadow: 0 10px 30px -8px rgba(240, 234, 216, 0.14);
 }
-.totem { width: 88px; height: 88px; color: var(--q); margin: 0 auto 10px; display: block; }
-.quad-card h2 { font-size: 22px; font-weight: 400; letter-spacing: 8px; color: var(--q); margin: 6px 0 4px; }
-.q-sub { font-size: 12px; color: var(--muted); letter-spacing: 2px; line-height: 1.8; }
-.q-link { font-size: 13px; color: #c9d0dd; margin-top: 10px; letter-spacing: 2px; }
+.card-icon { font-size: 30px; display: block; }
+.quad-card h2 { font-size: 20px; font-weight: 400; letter-spacing: 6px; margin: 10px 0 6px; }
+.quad-card p { font-size: 13px; color: var(--muted); letter-spacing: 1px; }
+.card-tag {
+  display: inline-block; margin-top: 12px; padding: 3px 12px;
+  font-size: 11px; letter-spacing: 2px; color: #c9d0dd;
+  border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 999px;
+}
+.card-tag-soon { opacity: 0.6; }
 .soon { opacity: 0.55; }
 
 /* ---------- 页脚 ---------- */
-.site-footer { text-align: center; color: #6d7688; font-size: 13px; letter-spacing: 2px; padding: 44px 0 10px; }
+.site-footer { text-align: center; color: #6d7688; font-size: 13px; letter-spacing: 2px; padding: 40px 0 6px; }
+
+/* 窄屏：隐藏四象背景装饰，避免遮挡内容 */
+@media (max-width: 900px) {
+  .beasts { display: none; }
+  .starfield { opacity: 0.5; }
+}
