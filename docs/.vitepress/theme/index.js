@@ -1,8 +1,10 @@
 import { h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import { useRoute, useData } from 'vitepress'
-import { onMounted, watch, nextTick, toRefs } from 'vue'
+import { onMounted, onBeforeUnmount, watch, nextTick, toRefs } from 'vue'
 import mediumZoom from 'medium-zoom'
+import './custom.css'
+import { initRibbon, disposeRibbon } from './ribbon'
 import giscusTalk from 'vitepress-plugin-comment-with-giscus'
 import {
   NolebaseEnhancedReadabilitiesPlugin,
@@ -48,6 +50,8 @@ export default {
       mediumZoom('.main img', { background: 'var(--vp-c-bg)', margin: 24 })
     }
     onMounted(initZoom)
+    onMounted(() => initRibbon())
+    onBeforeUnmount(disposeRibbon)
     watch(() => route.path, () => nextTick(initZoom))
   },
 }

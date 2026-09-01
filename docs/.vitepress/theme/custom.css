@@ -1,0 +1,72 @@
+/* ===== Suben Yiyuan custom styles ===== */
+
+/* Move page background color to <html> so the ribbon canvas
+   (z-index -1) can float behind the content. */
+html {
+  background-color: var(--vp-c-bg);
+}
+body {
+  background-color: transparent;
+}
+
+/* Hero title: flowing gradient text */
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    90deg,
+    #0f766e 0%,
+    #059669 25%,
+    #ca8a04 50%,
+    #b45309 75%,
+    #0f766e 100%
+  );
+}
+.dark {
+  --vp-home-hero-name-background: linear-gradient(
+    90deg,
+    #2dd4bf 0%,
+    #34d399 25%,
+    #fbbf24 50%,
+    #fb923c 75%,
+    #2dd4bf 100%
+  );
+}
+.VPHero .name.clip {
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: suben-hero-flow 8s linear infinite;
+}
+@keyframes suben-hero-flow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 300% center;
+  }
+}
+
+/* Tagline: soft jade-gold gradient text */
+.VPHero .tagline {
+  background: linear-gradient(90deg, #0d9488, #a16207, #0d9488);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: suben-tagline-flow 14s linear infinite;
+}
+.dark .VPHero .tagline {
+  background: linear-gradient(90deg, #5eead4, #fcd34d, #5eead4);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+@keyframes suben-tagline-flow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
