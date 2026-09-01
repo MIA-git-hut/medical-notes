@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
+import { pagefindPlugin, chineseSearchOptimize } from 'vitepress-plugin-pagefind'
 import { katex } from '@mdit/plugin-katex'
 import { readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -53,7 +54,24 @@ export default withMermaid({
   },
 
   vite: {
-    plugins: [groupIconVitePlugin()],
+    plugins: [
+      groupIconVitePlugin(),
+      pagefindPlugin({
+        btnPlaceholder: '搜索',
+        placeholder: '搜索全站笔记',
+        emptyText: '空空如也，换个关键词试试',
+        heading: '共 {{searchResult}} 条结果',
+        toSelect: '选择',
+        toNavigate: '切换',
+        toClose: '关闭',
+        searchBy: '由 Pagefind 驱动',
+        customSearchQuery: chineseSearchOptimize,
+        forceLanguage: 'zh-cn',
+      }),
+    ],
+    ssr: {
+      noExternal: ['@nolebase/*'],
+    },
   },
 
   mermaid: {
@@ -77,7 +95,6 @@ export default withMermaid({
       '/公众号/': autoSidebar('公众号', '公众号'),
     },
 
-    search: { provider: 'local' },
     outline: { level: [2, 3], label: '本页目录' },
     docFooter: { prev: '上一篇', next: '下一篇' },
     lastUpdated: { text: '最后更新' },

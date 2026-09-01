@@ -3,3 +3,5 @@ docs/.vitepress/dist
 docs/.vitepress/cache
 docs/.obsidian
 .DS_Store
+# DuckDB 数据库可由 tools/build_duckdb.py 重建，不入库；CSV 快照保留
+data/*.duckdb
