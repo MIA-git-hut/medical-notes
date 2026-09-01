@@ -79,6 +79,7 @@ export default withMermaid({
   },
 
   themeConfig: {
+    appearance: 'force-dark',
     nav: [
       { text: '首页', link: '/' },
       { text: '中药学', link: '/中药学/' },

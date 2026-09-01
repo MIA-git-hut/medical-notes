@@ -1,72 +1,122 @@
-/* ===== Suben Yiyuan custom styles ===== */
+/* ===== Suben Yiyuan - Deep-space & Gold theme ===== */
 
-/* Move page background color to <html> so the ribbon canvas
-   (z-index -1) can float behind the content. */
+/* Deep navy night sky, so the constellation canvas (z-index -1)
+   floats behind the page content. */
 html {
-  background-color: var(--vp-c-bg);
+  background-color: #060912;
+  background-image: radial-gradient(1200px 820px at 50% 6%, #131c38 0%, #0b101f 46%, #060912 100%);
+  background-attachment: fixed;
 }
 body {
   background-color: transparent;
 }
 
-/* Hero title: flowing gradient text */
+/* Cinematic film grain over everything (non-interactive). */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hero title: flowing gold-metallic gradient text. */
 :root {
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(
-    90deg,
-    #0f766e 0%,
-    #059669 25%,
-    #ca8a04 50%,
-    #b45309 75%,
-    #0f766e 100%
+    115deg,
+    #f3e5bc 0%,
+    #d3ab62 20%,
+    #fff6dd 40%,
+    #b98a3e 60%,
+    #ecd9a6 78%,
+    #a87c34 100%
   );
 }
 .dark {
   --vp-home-hero-name-background: linear-gradient(
-    90deg,
-    #2dd4bf 0%,
-    #34d399 25%,
-    #fbbf24 50%,
-    #fb923c 75%,
-    #2dd4bf 100%
+    115deg,
+    #f7edcf 0%,
+    #d9b878 20%,
+    #fff8e6 40%,
+    #c49a4f 60%,
+    #ecd9a6 78%,
+    #b28a3c 100%
   );
 }
 .VPHero .name.clip {
-  background-size: 300% auto;
+  background-size: 220% auto;
   -webkit-background-clip: text;
   background-clip: text;
-  animation: suben-hero-flow 8s linear infinite;
+  animation: suben-hero-flow 9s linear infinite;
 }
 @keyframes suben-hero-flow {
   0% {
     background-position: 0% center;
   }
   100% {
-    background-position: 300% center;
+    background-position: 220% center;
   }
 }
 
-/* Tagline: soft jade-gold gradient text */
+/* Hero subtitle: calm silver, no rainbow. */
+.VPHero .text {
+  color: #aeb9d6;
+}
+.dark .VPHero .text {
+  color: #c3cde8;
+}
+
+/* Tagline: soft moonlight silver. */
 .VPHero .tagline {
-  background: linear-gradient(90deg, #0d9488, #a16207, #0d9488);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: suben-tagline-flow 14s linear infinite;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: #7f8db0;
+  font-weight: 300;
+  letter-spacing: 0.02em;
 }
 .dark .VPHero .tagline {
-  background: linear-gradient(90deg, #5eead4, #fcd34d, #5eead4);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #8f9cc0;
 }
-@keyframes suben-tagline-flow {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+
+/* Primary CTA: gold gradient with soft glow. */
+.VPButton.brand {
+  background: linear-gradient(135deg, #e9ca80 0%, #c99a45 45%, #f0dcab 72%, #b98a3e 100%);
+  background-size: 180% 180%;
+  color: #221804 !important;
+  border: 1px solid rgba(255, 241, 205, 0.5);
+  box-shadow:
+    0 0 20px rgba(212, 175, 106, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition:
+    box-shadow 0.35s ease,
+    transform 0.35s ease,
+    background-position 0.6s ease;
+}
+.VPButton.brand:hover {
+  background-position: 100% 50%;
+  box-shadow:
+    0 0 34px rgba(212, 175, 106, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  transform: translateY(-1px);
+}
+
+/* Secondary CTA: frosted glass panel. */
+.VPButton.alt {
+  background: rgba(18, 26, 48, 0.55);
+  border: 1px solid rgba(160, 178, 226, 0.25);
+  color: #d7def1;
+  backdrop-filter: blur(6px);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+.VPButton.alt:hover {
+  border-color: rgba(212, 175, 106, 0.5);
+  box-shadow: 0 0 22px rgba(212, 175, 106, 0.18);
+  transform: translateY(-1px);
 }

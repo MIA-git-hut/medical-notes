@@ -4,7 +4,7 @@ import { useRoute, useData } from 'vitepress'
 import { onMounted, onBeforeUnmount, watch, nextTick, toRefs } from 'vue'
 import mediumZoom from 'medium-zoom'
 import './custom.css'
-import { initRibbon, disposeRibbon } from './ribbon'
+import { initConstellation, disposeConstellation } from './constellation'
 import giscusTalk from 'vitepress-plugin-comment-with-giscus'
 import {
   NolebaseEnhancedReadabilitiesPlugin,
@@ -50,8 +50,8 @@ export default {
       mediumZoom('.main img', { background: 'var(--vp-c-bg)', margin: 24 })
     }
     onMounted(initZoom)
-    onMounted(() => initRibbon())
-    onBeforeUnmount(disposeRibbon)
+    onMounted(() => initConstellation())
+    onBeforeUnmount(disposeConstellation)
     watch(() => route.path, () => nextTick(initZoom))
   },
 }
