@@ -4,6 +4,7 @@ import { useRoute, useData } from 'vitepress'
 import { onMounted, onBeforeUnmount, watch, nextTick, toRefs } from 'vue'
 import mediumZoom from 'medium-zoom'
 import './custom.css'
+import HomeContent from './HomeContent.vue'
 import { initConstellation, disposeConstellation } from './constellation'
 import giscusTalk from 'vitepress-plugin-comment-with-giscus'
 import {
@@ -28,6 +29,7 @@ export default {
   enhanceApp(ctx) {
     DefaultTheme.enhanceApp(ctx)
     ctx.app.use(NolebaseEnhancedReadabilitiesPlugin)
+    ctx.app.component('HomeContent', HomeContent)
   },
   setup() {
     const { frontmatter } = toRefs(useData())
