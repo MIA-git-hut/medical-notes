@@ -27,9 +27,9 @@ head:
       <span class="brand-name">溯本医源</span>
     </a>
     <nav class="site-nav">
-      <a href="#herbs">中药学</a>
-      <a href="#formulas">方剂学</a>
-      <a href="#tuina">推拿学</a>
+      <a href="/中药学/">中药学</a>
+      <a href="/公众号/秋肺当时令">公众号</a>
+      <a href="/使用指南">使用指南</a>
     </nav>
     <button id="gyro-btn" class="gyro-btn" type="button" hidden>开启 3D 陀螺仪</button>
   </header>
@@ -40,14 +40,14 @@ head:
       <h1 class="hero-title">溯本<span class="accent">医</span>源</h1>
       <p class="hero-quote">正气存内，邪不可干<span class="quote-sep">·</span>把知识化为正气</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#herbs">开始学习</a>
+        <a class="btn btn-primary" href="/使用指南">开始学习</a>
         <a class="btn btn-ghost" href="#about">关于本站</a>
       </div>
       <p class="hero-hint" id="hero-hint">移动鼠标 · 感受水墨流动</p>
     </section>
 
     <section class="cards" id="herbs">
-      <a class="card" href="#">
+      <a class="card" href="/中药学/">
         <span class="card-icon">🌿</span>
         <h2>中药学</h2>
         <p>四气五味，归经升降</p>

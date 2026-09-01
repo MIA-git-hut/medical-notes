@@ -27,8 +27,8 @@
   var isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
   var smallScreen = Math.min(window.innerWidth, window.innerHeight) < 740;
   var isMobile = isCoarse || smallScreen;
-  var PARTICLE_COUNT = isMobile ? 3600 : 10000;
-  var DPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1.8 : 2);
+  var PARTICLE_COUNT = isMobile ? 1000 : 2500;
+  var DPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.25);
   var reducedMotion = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var TIME_SCALE = reducedMotion ? 0.25 : 1.0;
