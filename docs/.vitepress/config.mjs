@@ -1,12 +1,39 @@
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 import { pagefindPlugin } from 'vitepress-plugin-pagefind'
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // 以配置文件自身位置为基准定位 docs 目录，兼容本地与服务器环境
 const docsDir = join(dirname(fileURLToPath(import.meta.url)), '..')
+
+// 药味迁册（对齐十五五教材）后失效的旧地址。
+// 不用 vercel.json 的 redirects：Vercel 匹配不了含中文的 source，线上实测 404，
+// 改为构建时在 dist 里生成跳转页，随构建产物一起生效
+const PAGE_REDIRECTS = [
+  ['中药学/清热药/清热泻火药/谷精草', '中药学/解表药/发散风热药/谷精草'],
+  ['中药学/止血药/化瘀止血药/降香', '中药学/活血化瘀药/活血止痛药/降香'],
+]
+
+function redirectPage(url) {
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=${url}">
+<link rel="canonical" href="${url}">
+<title>页面已迁移</title>
+</head>
+<body data-pagefind-ignore="all" style="margin:0;background:#0a0c14;color:#8b90a8;font-family:system-ui,sans-serif">
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+<p>这味药已迁到新分类，正在跳转……若未跳转，<a style="color:#3b82f6" href="${url}">点这里</a></p>
+</div>
+</body>
+</html>
+`
+}
 
 // 递归扫描文件夹生成树形侧边栏，支持「科目/分类/笔记」多层结构
 function scanDir(rel) {
@@ -53,6 +80,19 @@ export default defineConfig({
   title: '溯本医源',
   description: '中医知识整理与检索 · 溯源古籍原文',
   lastUpdated: true,
+
+  // 生成旧地址的跳转页（dist 里同时留 .html 与 目录/index.html 两种形式）
+  buildEnd(siteConfig) {
+    const base = siteConfig.base || '/'
+    for (const [from, to] of PAGE_REDIRECTS) {
+      const html = redirectPage(base + to)
+      for (const rel of [`${from}.html`, `${from}/index.html`]) {
+        const file = join(siteConfig.outDir, rel)
+        mkdirSync(dirname(file), { recursive: true })
+        writeFileSync(file, html)
+      }
+    }
+  },
   markdown: {
     config(md) {
       md.use(groupIconMdPlugin)

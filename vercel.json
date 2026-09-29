@@ -1,16 +1,4 @@
 {
   "buildCommand": "npm run build",
-  "cleanUrls": true,
-  "redirects": [
-    {
-      "source": "/中药学/清热药/清热泻火药/谷精草",
-      "destination": "/中药学/解表药/发散风热药/谷精草",
-      "permanent": true
-    },
-    {
-      "source": "/中药学/止血药/化瘀止血药/降香",
-      "destination": "/中药学/活血化瘀药/活血止痛药/降香",
-      "permanent": true
-    }
-  ]
+  "cleanUrls": true
 }
