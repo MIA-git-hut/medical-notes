@@ -1,9 +1,7 @@
 import { defineConfig } from 'vitepress'
-import { withMermaid } from 'vitepress-plugin-mermaid'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
-import { pagefindPlugin, chineseSearchOptimize } from 'vitepress-plugin-pagefind'
-import { katex } from '@mdit/plugin-katex'
-import { readdirSync } from 'node:fs'
+import { pagefindPlugin } from 'vitepress-plugin-pagefind'
+import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -20,16 +18,25 @@ function scanDir(rel) {
     return []
   }
   const items = []
-  for (const e of entries.sort((a, b) => a.name.localeCompare(b.name, 'zh'))) {
+  for (const e of entries.sort((a, b) => {
+    if (a.name === '总论') return -1
+    if (b.name === '总论') return 1
+    return a.name.localeCompare(b.name, 'zh')
+  })) {
     if (e.name.endsWith('.md') && e.name !== 'index.md') {
+      const base = e.name.replace(/\.md$/, '')
+      // 数字前缀（如 1-中药的起源…）只用于排序，显示时剥离
       items.push({
-        text: e.name.replace(/\.md$/, ''),
-        link: `/${rel}/${e.name.replace(/\.md$/, '')}`,
+        text: base.replace(/^\d+[-.]/, ''),
+        link: `/${rel}/${base}`,
       })
     } else if (e.isDirectory() && !e.name.startsWith('.')) {
       const children = scanDir(`${rel}/${e.name}`)
       if (children.length > 0) {
         items.push({ text: e.name, collapsed: false, items: children })
+      } else if (existsSync(join(docsDir, rel, e.name, 'index.md'))) {
+        // 目录里只有 index.md 时，作为单页入口（如 四大经典/伤寒论/）
+        items.push({ text: e.name, link: `/${rel}/${e.name}/` })
       }
     }
   }
@@ -41,14 +48,13 @@ function autoSidebar(dir, label) {
   return [{ text: label, collapsed: false, items: scanDir(dir) }]
 }
 
-export default withMermaid({
+export default defineConfig({
   lang: 'zh-CN',
   title: '溯本医源',
-  description: '个人中医学习笔记网站',
+  description: '中医知识整理与检索 · 溯源古籍原文',
   lastUpdated: true,
   markdown: {
     config(md) {
-      md.use(katex)
       md.use(groupIconMdPlugin)
     },
   },
@@ -65,7 +71,9 @@ export default withMermaid({
         toNavigate: '切换',
         toClose: '关闭',
         searchBy: '由 Pagefind 驱动',
-        customSearchQuery: chineseSearchOptimize,
+        // 查询原样交给 pagefind（不分词）：索引端 Rust ICU 与浏览器 Intl.Segmenter
+        // 的分词结果不一致（会把「黄芪」切成「黄 芪」），必须两侧都不分词才能对齐
+        customSearchQuery: (q) => q,
         forceLanguage: 'zh-cn',
       }),
     ],
@@ -74,26 +82,26 @@ export default withMermaid({
     },
   },
 
-  mermaid: {
-    theme: 'neutral',
-  },
-
   themeConfig: {
     appearance: 'force-dark',
     nav: [
       { text: '首页', link: '/' },
       { text: '中药学', link: '/中药学/' },
-
-      { text: '公众号', link: '/公众号/秋肺当时令' },
-      { text: '使用指南', link: '/使用指南' },
+      {
+        text: '四大经典',
+        items: [
+          { text: '黄帝内经', link: '/四大经典/黄帝内经/' },
+          { text: '伤寒论', link: '/四大经典/伤寒论/' },
+          { text: '金匮要略', link: '/四大经典/金匮要略/' },
+          { text: '神农本草经', link: '/四大经典/神农本草经/' },
+        ],
+      },
     ],
 
     sidebar: {
       // 自动读取各科目文件夹里的 .md 文件生成目录，新建笔记后无需改这里
       '/中药学/': autoSidebar('中药学', '中药学'),
-      '/方剂学/': autoSidebar('方剂学', '方剂学'),
-      '/推拿学/': autoSidebar('推拿学', '推拿学'),
-      '/公众号/': autoSidebar('公众号', '公众号'),
+      '/四大经典/': autoSidebar('四大经典', '四大经典'),
     },
 
     outline: { level: [2, 3], label: '本页目录' },

@@ -6,8 +6,8 @@ const DEFAULTS = {
   nodeCount: 75,        // desktop node count (halved on small screens)
   linkDistance: 150,    // px, connect nodes closer than this
   lineAlpha: 0.5,       // max alpha of the connecting lines
-  nodeColor: '#e8cf8f',
-  lineColorBase: 'rgba(230, 200, 121, ',
+  nodeColor: '#8fb6ff',
+  lineColorBase: 'rgba(126, 164, 255, ',
   speed: 0.32,          // drift speed multiplier
   pointerRadius: 220,   // px, mouse gravity radius
 }

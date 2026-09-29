@@ -6,6 +6,7 @@ import mediumZoom from 'medium-zoom'
 import './custom.css'
 import HomeContent from './HomeContent.vue'
 import { initConstellation, disposeConstellation } from './constellation'
+import { installPagefindShim } from './pagefind-shim'
 import giscusTalk from 'vitepress-plugin-comment-with-giscus'
 import {
   NolebaseEnhancedReadabilitiesPlugin,
@@ -14,8 +15,9 @@ import {
   SpotlightStyles,
 } from '@nolebase/vitepress-plugin-enhanced-readabilities'
 import '@nolebase/vitepress-plugin-enhanced-readabilities/client/style.css'
-import 'katex/dist/katex.min.css'
 import 'virtual:group-icons.css'
+
+installPagefindShim()
 
 export default {
   ...DefaultTheme,
