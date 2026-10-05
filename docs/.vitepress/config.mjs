@@ -4,6 +4,7 @@ import { pagefindPlugin } from 'vitepress-plugin-pagefind'
 import { existsSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { wikiLinkPlugin } from './wiki-link.mjs'
 
 // 以配置文件自身位置为基准定位 docs 目录，兼容本地与服务器环境
 const docsDir = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -128,6 +129,7 @@ export default defineConfig({
   markdown: {
     config(md) {
       md.use(groupIconMdPlugin)
+      md.use(wikiLinkPlugin(docsDir))
     },
   },
 

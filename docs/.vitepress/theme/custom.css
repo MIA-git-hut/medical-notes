@@ -113,3 +113,26 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ===== Obsidian 双链渲染（wiki-link.mjs）=====
+   [[药名]] → 站内链接（虚下划线区别于普通链接）；无页面的分类/归经 → 静音标签 */
+.vp-doc .sby-wikilink {
+  color: var(--sby-accent-soft);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(106, 165, 255, 0.4);
+  transition: border-color 0.18s var(--sby-ease-out);
+}
+.vp-doc .sby-wikilink:hover {
+  border-bottom-style: solid;
+  border-bottom-color: var(--sby-accent-soft);
+}
+.vp-doc .sby-wikilink-muted {
+  display: inline-block;
+  padding: 0 7px;
+  margin: 0 1px;
+  border-radius: 5px;
+  background: rgba(139, 144, 168, 0.12);
+  color: var(--sby-text-2);
+  font-size: 0.88em;
+  line-height: 1.65;
+}
