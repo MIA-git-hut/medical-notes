@@ -5,6 +5,7 @@ import { onMounted, onBeforeUnmount, watch, nextTick, toRefs } from 'vue'
 import mediumZoom from 'medium-zoom'
 import './custom.css'
 import HomeContent from './HomeContent.vue'
+import Flashcard from './Flashcard.vue'
 import { initConstellation, disposeConstellation } from './constellation'
 import { installPagefindShim } from './pagefind-shim'
 import giscusTalk from 'vitepress-plugin-comment-with-giscus'
@@ -32,6 +33,7 @@ export default {
     DefaultTheme.enhanceApp(ctx)
     ctx.app.use(NolebaseEnhancedReadabilitiesPlugin)
     ctx.app.component('HomeContent', HomeContent)
+    ctx.app.component('Flashcard', Flashcard)
   },
   setup() {
     const { frontmatter } = toRefs(useData())

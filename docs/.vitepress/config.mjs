@@ -136,6 +136,7 @@ export default defineConfig({
           { text: '神农本草经', link: '/四大经典/神农本草经/' },
         ],
       },
+      { text: '自测', link: '/自测/' },
     ],
 
     sidebar: {

@@ -3,9 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "vitepress dev docs",
+    "dev": "node tools/gen_flashcards.mjs && vitepress dev docs",
     "preview": "vitepress preview docs",
-    "build": "vitepress build docs && node tools/patch_pagefind_lang.mjs"
+    "build": "node tools/gen_flashcards.mjs && vitepress build docs && node tools/patch_pagefind_lang.mjs"
   },
   "devDependencies": {
     "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
