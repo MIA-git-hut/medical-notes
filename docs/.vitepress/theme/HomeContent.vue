@@ -227,6 +227,7 @@ onBeforeUnmount(() => {
       <nav class="site-nav">
         <a href="/中药学/">中药学</a>
         <a href="/四大经典/">四大经典</a>
+        <a href="/自测/">自测</a>
       </nav>
     </header>
 
@@ -237,6 +238,7 @@ onBeforeUnmount(() => {
         <div class="hero-actions">
           <a class="btn btn-primary" href="/中药学/">开始学习</a>
           <a class="btn btn-ghost" href="/四大经典/">四大经典</a>
+          <a class="btn btn-ghost" href="/自测/">药卡自测</a>
         </div>
 
         <div ref="searchBox" class="home-search">
