@@ -28,18 +28,6 @@ body {
   background-color: transparent;
 }
 
-/* 胶片颗粒（弱化，避免与毛玻璃抢戏） */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.03;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 /* ===== VitePress 变量覆盖（站点 force-dark，只需覆盖 .dark） ===== */
 .dark {
   --vp-c-bg: #0a0c14;

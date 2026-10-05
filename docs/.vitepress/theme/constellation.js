@@ -9,7 +9,6 @@ const DEFAULTS = {
   nodeColor: '#8fb6ff',
   lineColorBase: 'rgba(126, 164, 255, ',
   speed: 0.32,          // drift speed multiplier
-  pointerRadius: 220,   // px, mouse gravity radius
 }
 
 let canvas = null
@@ -19,7 +18,6 @@ let width = 0
 let height = 0
 let rafId = 0
 let config = { ...DEFAULTS }
-let pointer = { x: -1000, y: -1000 }
 let reduced = false
 
 function resize() {
@@ -82,12 +80,6 @@ function drawFrame() {
     if (node.x < 0 || node.x > width) node.vx *= -1
     if (node.y < 0 || node.y > height) node.vy *= -1
 
-    const pd = dist(node, pointer)
-    if (pd < config.pointerRadius) {
-      node.x -= (node.x - pointer.x) * 0.004
-      node.y -= (node.y - pointer.y) * 0.004
-    }
-
     const pulse = 0.75 + Math.sin(now * 0.0012 + node.x) * 0.25
     ctx.fillStyle = config.nodeColor
     ctx.globalAlpha = pulse * 0.22
@@ -119,16 +111,6 @@ function onResize() {
   }
 }
 
-function onPointerMove(e) {
-  pointer.x = e.clientX
-  pointer.y = e.clientY
-}
-
-function onPointerLeave() {
-  pointer.x = -1000
-  pointer.y = -1000
-}
-
 function onVisibility() {
   if (document.hidden) {
     if (rafId) {
@@ -157,8 +139,6 @@ export function initConstellation(options = {}) {
   if (!reduced) rafId = window.requestAnimationFrame(tick)
 
   window.addEventListener('resize', onResize)
-  window.addEventListener('mousemove', onPointerMove)
-  window.addEventListener('mouseleave', onPointerLeave)
   document.addEventListener('visibilitychange', onVisibility)
 }
 
@@ -173,7 +153,5 @@ export function disposeConstellation() {
     ctx = null
   }
   window.removeEventListener('resize', onResize)
-  window.removeEventListener('mousemove', onPointerMove)
-  window.removeEventListener('mouseleave', onPointerLeave)
   document.removeEventListener('visibilitychange', onVisibility)
 }

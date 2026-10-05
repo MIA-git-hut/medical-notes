@@ -271,9 +271,7 @@ watch([chapter, onlyUnknown], rebuild)
   padding: 28px;
   border: 1px solid var(--sby-border);
   border-radius: 16px;
-  background: linear-gradient(160deg, rgba(22, 25, 36, 0.92), rgba(16, 18, 28, 0.88));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(160deg, #161924, #10121c);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }

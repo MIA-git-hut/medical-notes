@@ -1,5 +1,6 @@
 ---
 title: 药卡自测
+comment: false
 ---
 
 # 药卡自测

@@ -56,8 +56,16 @@ export default {
       mediumZoom('.main img', { background: 'var(--vp-c-bg)', margin: 24 })
     }
     onMounted(initZoom)
-    onMounted(() => initConstellation())
+    // 星座背景只在首页运行，其余页面留静态渐变底（避免全站每页常驻 canvas 动画）
+    const syncConstellation = () => {
+      if (route.path === '/') initConstellation()
+      else disposeConstellation()
+    }
+    onMounted(syncConstellation)
     onBeforeUnmount(disposeConstellation)
-    watch(() => route.path, () => nextTick(initZoom))
+    watch(() => route.path, () => {
+      nextTick(initZoom)
+      syncConstellation()
+    })
   },
 }
