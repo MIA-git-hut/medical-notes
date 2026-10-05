@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yixuebiji.top/sitemap.xml

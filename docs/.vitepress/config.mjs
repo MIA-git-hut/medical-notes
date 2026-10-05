@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url'
 // 以配置文件自身位置为基准定位 docs 目录，兼容本地与服务器环境
 const docsDir = join(dirname(fileURLToPath(import.meta.url)), '..')
 
+const SITE_URL = 'https://yixuebiji.top'
+
 // 药味迁册（对齐十五五教材）后失效的旧地址。
 // 不用 vercel.json 的 redirects：Vercel 匹配不了含中文的 source，线上实测 404，
 // 改为构建时在 dist 里生成跳转页，随构建产物一起生效
@@ -80,6 +82,36 @@ export default defineConfig({
   title: '溯本医源',
   description: '中医知识整理与检索 · 溯源古籍原文',
   lastUpdated: true,
+
+  head: [['meta', { name: 'theme-color', content: '#0a0c14' }]],
+
+  // 每页注入 OG / canonical——分享到微信、小红书时显示标题、描述与预览图
+  transformHead({ pageData }) {
+    const rel = pageData.relativePath
+    let clean = rel
+    if (clean === 'index.md') clean = ''
+    else if (clean.endsWith('/index.md')) clean = clean.slice(0, -'index.md'.length)
+    else clean = clean.replace(/\.md$/, '')
+    const url = clean ? `${SITE_URL}/${encodeURI(clean)}` : `${SITE_URL}/`
+    const isHome = clean === ''
+    const pageTitle = pageData.frontmatter.title || pageData.title || ''
+    const ogTitle = isHome || !pageTitle ? '溯本医源 · 中医知识整理与检索' : `${pageTitle} | 溯本医源`
+    const desc =
+      pageData.frontmatter.description ||
+      (isHome || !pageTitle
+        ? '中医知识整理与检索 · 溯源古籍原文'
+        : `「${pageTitle}」——中医知识整理与检索 · 溯本医源`)
+    return [
+      ['meta', { property: 'og:type', content: isHome ? 'website' : 'article' }],
+      ['meta', { property: 'og:site_name', content: '溯本医源' }],
+      ['meta', { property: 'og:title', content: ogTitle }],
+      ['meta', { property: 'og:description', content: desc }],
+      ['meta', { property: 'og:url', content: url }],
+      ['meta', { property: 'og:image', content: `${SITE_URL}/og.png` }],
+      ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+      ['link', { rel: 'canonical', href: url }],
+    ]
+  },
 
   // 生成旧地址的跳转页（dist 里同时留 .html 与 目录/index.html 两种形式）
   buildEnd(siteConfig) {

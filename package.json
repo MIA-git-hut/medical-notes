@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node tools/gen_flashcards.mjs && vitepress dev docs",
     "preview": "vitepress preview docs",
-    "build": "node tools/gen_flashcards.mjs && vitepress build docs && node tools/patch_pagefind_lang.mjs"
+    "build": "node tools/gen_flashcards.mjs && vitepress build docs && node tools/gen_sitemap.mjs && node tools/patch_pagefind_lang.mjs"
   },
   "devDependencies": {
     "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
