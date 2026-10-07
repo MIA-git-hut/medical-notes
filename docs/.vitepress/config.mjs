@@ -17,6 +17,7 @@ const SITE_URL = 'https://yixuebiji.top'
 const PAGE_REDIRECTS = [
   ['中药学/清热药/清热泻火药/谷精草', '中药学/解表药/发散风热药/谷精草'],
   ['中药学/止血药/化瘀止血药/降香', '中药学/活血化瘀药/活血止痛药/降香'],
+  ['四大经典/神农本草经/1-序录', '四大经典/神农本草经/000-序录'],
 ]
 
 function redirectPage(url) {

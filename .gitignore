@@ -17,3 +17,5 @@ docs/.obsidian
 data/*.duckdb
 # 闪卡数据由 tools/gen_flashcards.mjs 在 dev/build 前自动重建，不入库
 docs/public/flashcards.json
+# 四大经典底本、讲稿切片与解析中间产物（约 11M，可由 tools/four-classics 重新生成），不入库
+data/四大经典/
