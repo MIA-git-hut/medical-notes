@@ -19,6 +19,8 @@ let height = 0
 let rafId = 0
 let config = { ...DEFAULTS }
 let reduced = false
+let motionQuery = null
+let mobileQuery = null
 
 function resize() {
   if (!canvas || !ctx) return
@@ -102,6 +104,15 @@ function tick() {
   rafId = window.requestAnimationFrame(tick)
 }
 
+function updateMotion() {
+  reduced = Boolean(motionQuery?.matches || mobileQuery?.matches)
+  if (reduced && rafId) {
+    window.cancelAnimationFrame(rafId)
+    rafId = 0
+  }
+  if (!reduced && !rafId && !document.hidden) rafId = window.requestAnimationFrame(tick)
+}
+
 function onResize() {
   resize()
   initNodes()
@@ -126,7 +137,11 @@ export function initConstellation(options = {}) {
   if (typeof window === 'undefined') return
   disposeConstellation()
   config = { ...DEFAULTS, ...options }
-  reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  mobileQuery = window.matchMedia('(max-width: 767px), (pointer: coarse)')
+  reduced = motionQuery.matches || mobileQuery.matches
+  motionQuery.addEventListener('change', updateMotion)
+  mobileQuery.addEventListener('change', updateMotion)
 
   canvas = document.createElement('canvas')
   canvas.style.cssText = 'position:fixed;top:0;left:0;z-index:-1;pointer-events:none'
@@ -154,4 +169,8 @@ export function disposeConstellation() {
   }
   window.removeEventListener('resize', onResize)
   document.removeEventListener('visibilitychange', onVisibility)
+  motionQuery?.removeEventListener('change', updateMotion)
+  mobileQuery?.removeEventListener('change', updateMotion)
+  motionQuery = null
+  mobileQuery = null
 }

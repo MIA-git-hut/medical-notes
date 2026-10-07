@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { parseOldRecords } from './old-record-store.js'
 
 const STORE_KEY = 'sby-flashcards-v1'
 
@@ -22,8 +23,7 @@ const total = computed(() => all.value.length)
 
 function loadRecords() {
   try {
-    const s = localStorage.getItem(STORE_KEY)
-    if (s) records.value = JSON.parse(s)
+    records.value = parseOldRecords(localStorage.getItem(STORE_KEY))
   } catch {
     records.value = {}
   }
@@ -65,8 +65,16 @@ function go(delta) {
 
 function mark(kind) {
   if (!current.value) return
-  records.value = { ...records.value, [current.value.name]: kind }
+  const name = current.value.name
+  records.value = { ...records.value, [name]: kind }
   saveRecords()
+  if (onlyUnknown.value && kind === 'know') {
+    const currentIndex = idx.value
+    queue.value = queue.value.filter((card) => card.name !== name)
+    idx.value = queue.value.length ? Math.min(currentIndex, queue.value.length - 1) : 0
+    flipped.value = false
+    return
+  }
   go(1)
 }
 
@@ -79,7 +87,15 @@ function resetRecords() {
 }
 
 function onKey(e) {
-  if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return
+  const target = e.target
+  if (target instanceof Element) {
+    const interactive = target.closest('button, a, input, select, textarea')
+    if (
+      (interactive && /^(BUTTON|A|INPUT|SELECT|TEXTAREA)$/.test(interactive.tagName)) ||
+      target.isContentEditable ||
+      target.closest('[contenteditable]:not([contenteditable="false"])')
+    ) return
+  }
   if (e.code === 'Space' || e.key === 'Enter') {
     e.preventDefault()
     flipped.value = !flipped.value

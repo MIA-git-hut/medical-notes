@@ -71,53 +71,6 @@ body:has(.home-content) {
     radial-gradient(ellipse at 50% -10%, var(--night-1) 0%, var(--night-2) 55%, var(--night-3) 100%);
 }
 
-/* ---------- 星宿背景层 ---------- */
-.starfield {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-.su-name {
-  font-family: "Kaiti SC", "STKaiti", "KaiTi", "SimSun", serif;
-  font-size: 11px;
-  fill: currentColor;
-  fill-opacity: 0.55;
-  letter-spacing: 1px;
-}
-
-/* ---------- 四象背景装饰（守四方，无框） ---------- */
-.beasts {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-.beast {
-  position: absolute;
-  pointer-events: auto;
-  display: block;
-  text-decoration: none;
-  text-align: center;
-  color: var(--ink);
-  transition: transform 0.18s var(--ease-out), filter 0.18s var(--ease-out);
-}
-.beast:hover { transform: scale(1.04); filter: drop-shadow(0 0 14px color-mix(in srgb, var(--q) 45%, transparent)); }
-.beast .totem { width: clamp(68px, 8vw, 100px); height: auto; display: block; margin: 0 auto; color: var(--q); }
-.beast h2 { font-size: clamp(17px, 1.9vw, 23px); font-weight: 400; letter-spacing: 6px; color: var(--q); margin-top: 6px; }
-.beast .q-sub { font-size: 12px; color: var(--muted); letter-spacing: 2px; line-height: 1.7; margin-top: 3px; }
-.beast .q-link { font-size: 13px; color: var(--nav-text); margin-top: 6px; letter-spacing: 2px; }
-.beast .q-link:hover { color: var(--ink); }
-.beast.soon { opacity: 0.5; }
-.beast.soon:hover { transform: none; filter: none; }
-
-.q-east { left: clamp(8px, 3vw, 44px); top: 50%; transform: translateY(-50%); }
-.q-west { right: clamp(8px, 3vw, 44px); top: 50%; transform: translateY(-50%); }
-.q-north { top: clamp(10px, 3vh, 30px); left: 50%; transform: translateX(-50%); }
-.q-south { bottom: clamp(10px, 3vh, 30px); left: 50%; transform: translateX(-50%); }
-
 /* ---------- 主体 ---------- */
 .page {
   position: relative;
@@ -258,27 +211,31 @@ a.entry-card:active { transform: scale(0.985); }
   }
 }
 
-/* 大屏：四象守四方时，hero 与页脚给上下两象让出空间；上下两象收小、去副标避免压字 */
-@media (min-width: 1200px) {
-  .hero { padding-top: clamp(120px, 16vh, 176px); }
-  .site-footer { padding-bottom: 130px; }
-  .q-north .totem, .q-south .totem { width: clamp(56px, 6vw, 76px); }
-  .q-north .q-sub, .q-south .q-sub { display: none; }
-  /* 上下两象只在足够高的视口显示，避免与正文、页脚叠字 */
-  .q-north, .q-south { display: none; }
-}
-@media (min-width: 1200px) and (min-height: 1020px) {
-  .q-north, .q-south { display: block; }
-}
-
-/* 中等宽度及以下：隐藏四象背景装饰，避免与卡片互相遮挡 */
-@media (max-width: 1199px) {
-  .beasts { display: none; }
-}
-@media (max-width: 900px) {
-  .starfield { opacity: 0.5; }
-}
 @media (max-width: 720px) {
   .classics-grid { grid-template-columns: repeat(2, 1fr); }
   .entry-main { flex-wrap: wrap; }
+}
+
+/* 手机首页使用独立的信息层级，不把桌面布局等比缩小。 */
+@media (max-width: 560px) {
+  .page { padding-inline: 14px; }
+  .site-header { align-items: flex-start; padding: 14px 0 8px; }
+  .brand-name { font-size: 18px; }
+  .site-nav { width: 100%; margin-left: 0; justify-content: space-between; gap: 6px 12px; }
+  .site-nav a { min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; letter-spacing: 1px; }
+  .theme-toggle { width: 44px; height: 44px; }
+  .hero { padding: 30px 0 4px; }
+  .hero-kicker { letter-spacing: 4px; }
+  .hero-quote { padding-inline: 10px; line-height: 1.8; }
+  .hero-actions { gap: 8px; margin-top: 20px; }
+  .btn { min-height: 44px; padding: 10px 17px; display: inline-flex; align-items: center; letter-spacing: 1px; }
+  .home-search { margin-top: 22px; }
+  .hs-input { height: 48px; padding-right: 48px; }
+  .hs-kbd { display: none; }
+  .entries { margin-top: 30px; }
+  .classics-grid { grid-template-columns: 1fr; gap: 10px; }
+  .classics-grid .entry-card { min-height: 70px; flex-direction: row; justify-content: flex-start; text-align: left; padding: 13px 15px; }
+  .entry-card { min-height: 70px; }
+  .entry-main .card-tag { width: auto; max-width: calc(100% - 62px); margin-left: 62px; }
+  .site-footer { padding-top: 32px; line-height: 1.7; }
 }

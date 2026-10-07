@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "generatedAtPolicy": "deterministic-no-timestamp",
+  "scope": "《神农本草经》四条已核对选读（甘草、人参、防风、麻黄）；不是全书转录",
+  "sources": [
+    {
+      "id": "wikisource-shennong-bencaojing-2490492",
+      "sourceTitle": "《神農本草經》— 維基文庫（oldid=2490492）",
+      "sourceUrl": "https://zh.wikisource.org/w/index.php?title=%E7%A5%9E%E8%BE%B2%E6%9C%AC%E8%8D%89%E7%B6%93&oldid=2490492",
+      "accessedAt": "2026-10-07",
+      "license": "Public domain",
+      "licenseEvidence": "来源页声明：作者逝世超过100年，且作品于1931年1月1日前出版，作品在全世界属于公有领域。",
+      "licenseEvidenceUrl": "https://zh.wikisource.org/w/index.php?title=%E7%A5%9E%E8%BE%B2%E6%9C%AC%E8%8D%89%E7%B6%93&oldid=2490492"
+    }
+  ],
+  "contents": [
+    {
+      "contentId": "classic-shennong-bencaojing-selected-001",
+      "title": "《神农本草经》草部四条选读",
+      "localPath": "docs/四大经典/神农本草经/2-草部四条选读.md",
+      "status": "reviewed",
+      "version": 1,
+      "sourceId": "wikisource-shennong-bencaojing-2490492"
+    },
+    {
+      "contentId": "materia-medica-exterior-classic-subset-001",
+      "title": "解表药古籍来源试点：防风、麻黄",
+      "localPath": "docs/学习资料/解表药古籍来源.md",
+      "status": "reviewed",
+      "version": 1,
+      "sourceId": "wikisource-shennong-bencaojing-2490492"
+    }
+  ]
+}

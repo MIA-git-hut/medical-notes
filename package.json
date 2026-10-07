@@ -2,19 +2,42 @@
   "name": "medical-notes",
   "private": true,
   "version": "0.1.0",
+  "engines": { "node": "22.x" },
   "scripts": {
-    "dev": "node tools/gen_flashcards.mjs && vitepress dev docs",
+    "dev": "npm run content:build && node tools/gen_flashcards.mjs && vitepress dev docs",
+    "dev:api": "node --env-file-if-exists=.env.local --import tsx server/dev.ts",
+    "db:migrate": "node --env-file-if-exists=.env.local --import tsx tools/migrate.ts",
+    "content:build": "node tools/build-study-content.mjs",
+    "content:check": "node tools/check-study-content.mjs",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:e2e": "playwright test",
     "preview": "vitepress preview docs",
-    "build": "node tools/gen_flashcards.mjs && vitepress build docs && node tools/gen_sitemap.mjs && node tools/patch_pagefind_lang.mjs"
+    "build": "npm run content:build && npm run content:check && node tools/gen_flashcards.mjs && vitepress build docs && node tools/gen_sitemap.mjs && node tools/patch_pagefind_lang.mjs"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
+    "@playwright/test": "1.63.0",
+    "@types/express": "5.0.6",
+    "@types/node": "26.6.4",
+    "@types/pg": "8.23.1",
+    "@types/supertest": "7.2.1",
     "medium-zoom": "^1.1.0",
     "pagefind": "^1.5.2",
+    "supertest": "7.3.1",
+    "tsx": "4.23.15",
     "typescript": "^5.9.3",
     "vitepress": "^1.6.3",
     "vitepress-plugin-comment-with-giscus": "^1.1.15",
     "vitepress-plugin-group-icons": "^1.7.6",
-    "vitepress-plugin-pagefind": "^0.4.24"
+    "vitepress-plugin-pagefind": "^0.4.24",
+    "vue-tsc": "3.3.12"
+  },
+  "dependencies": {
+    "express": "5.2.1",
+    "pg": "8.23.1",
+    "ts-fsrs": "5.4.2",
+    "zod": "4.6.5"
   }
 }
