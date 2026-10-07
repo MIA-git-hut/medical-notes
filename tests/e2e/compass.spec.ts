@@ -68,6 +68,17 @@ test('uses distinct light and dark orbit palettes', async ({ page }) => {
   expect(dark).not.toEqual(light)
 })
 
+test('selected mansion exposes a working configurable reading link', async ({ page }) => {
+  await openHome(page)
+  const reading = page.locator('.mansion-readings a')
+  await expect(reading).toHaveText('黄帝内经 ↗')
+  await page.getByTestId('constellation-dial').focus()
+  await page.keyboard.press('End')
+  await expect(reading).toHaveText('神农本草经 ↗')
+  await reading.click()
+  await expect(page.locator('h1')).toHaveText('神农本草经')
+})
+
 test('restores all four beasts and magnifies entire sectors at the side focus', async ({ page }) => {
   await openHome(page)
   await expect(page.locator('.orbital-beast')).toHaveCount(4)

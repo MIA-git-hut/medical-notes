@@ -116,8 +116,10 @@ test('私人笔记保存后刷新仍恢复，退出后不再显示', async ({ pa
 
 test('重置分类进度会保留笔记和复习历史', async ({ page }) => {
   await login(page)
+  await page.locator('details.category-stats > summary').click()
   await page.locator('.chapter').first().locator('summary').click()
   await page.locator('.chapter').first().locator('.cat').click()
+  await page.locator('details.settings summary').click()
   const text = `重置后保留 ${Date.now()}`
   await page.locator('.notes textarea').fill(text)
   await page.getByRole('button', { name: '保存笔记' }).click()
@@ -165,12 +167,35 @@ test('评分已保存但刷新失败时锁定评分，刷新成功后恢复', as
   await page.route('**/api/study', route => route.abort('connectionfailed'))
   await page.locator('.card').click()
   await page.getByRole('button', { name: /记住了/ }).click()
-  await expect(page.getByText('评分已保存，但学习数据刷新失败')).toBeVisible()
+  await expect(page.locator('.notice')).toContainText('已评分，下次复习：')
+  await expect(page.locator('.notice')).toContainText('学习数据刷新失败')
   await expect(page.getByRole('button', { name: /记住了/ })).toBeDisabled()
   await expect(page.getByRole('button', { name: '立即刷新' })).toBeVisible()
   await page.unroute('**/api/study')
   await page.getByRole('button', { name: '立即刷新' }).click()
   await expect(page.getByText('学习数据已刷新')).toBeVisible()
+})
+
+test('控制区默认折叠，正式评分后显示服务端复习日程且刷新保留', async ({ page }) => {
+  await login(page)
+  await expect(page.locator('details.category-stats')).not.toHaveAttribute('open', '')
+  await expect(page.locator('details.schedule')).not.toHaveAttribute('open', '')
+  await expect(page.locator('details.settings')).not.toHaveAttribute('open', '')
+  const name = (await question(page).textContent())!
+  await page.locator('.card').click()
+  const responsePromise = page.waitForResponse(res => res.url().includes('/api/study/reviews') && res.request().method() === 'POST')
+  await page.getByRole('button', { name: /记住了/ }).click()
+  const review = await (await responsePromise).json()
+  const displayedDue = new Date(review.review.due).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  await expect(page.locator('.notice')).toContainText(name)
+  await expect(page.locator('.notice')).toContainText('下次复习')
+  await page.locator('details.schedule summary').click()
+  await expect(page.locator('.schedule-list')).toContainText('未学')
+  await expect(page.locator('.schedule-list')).toContainText(displayedDue)
+  await page.reload()
+  await page.locator('details.schedule summary').click()
+  await expect(page.locator('.schedule-list')).toContainText('到期')
+  await expect(page.locator('.schedule-list')).toContainText(displayedDue)
 })
 
 test('同步接口故障时仍加载静态卡片并可自由练习', async ({ page }) => {

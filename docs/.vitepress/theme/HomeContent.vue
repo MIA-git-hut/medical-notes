@@ -1,10 +1,13 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useData } from 'vitepress'
 import HomeConstellation from './HomeConstellation.vue'
+import mansionNavigation from '../../../content/mansion-navigation.json'
+import { resolveMansionReadings } from '../../../shared/mansion-navigation'
 
 const { isDark } = useData()
 const selectedMansion = ref({ name: '角', quadrant: '东方青龙', index: 0, missingCount: 0 })
+const selectedReadings = computed(() => resolveMansionReadings(mansionNavigation, selectedMansion.value.name))
 
 const q = ref('')
 const results = ref([])
@@ -151,6 +154,11 @@ onBeforeUnmount(() => {
             </transition>
           </div>
           <p class="orbit-selection"><span>{{ selectedMansion.quadrant }}</span><b>{{ selectedMansion.name }}宿</b><span class="orbit-count">{{ String(selectedMansion.index + 1).padStart(2, '0') }} / 28</span></p>
+          <nav class="mansion-readings" :aria-label="`${selectedMansion.name}宿阅读入口`">
+            <span>站内阅读导航</span>
+            <a v-for="reading in selectedReadings" :key="reading.id" :href="reading.href" :title="reading.description">{{ reading.title }} <span aria-hidden="true">↗</span></a>
+            <span v-if="!selectedReadings.length">阅读内容待配置</span>
+          </nav>
           <a class="star-source" href="/星图说明">{{ selectedMansion.missingCount ? `${selectedMansion.name}宿有 ${selectedMansion.missingCount} 颗待考 · ` : '' }}星图与资料来源 ↗</a>
         </section>
 
