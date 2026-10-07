@@ -44,7 +44,7 @@
 }
 
 .home-content, .home-content * { box-sizing: border-box; }
-.home-content { margin: 0; padding: 0; }
+.home-content { margin: 0; padding: 0; overflow: clip; }
 
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
@@ -238,4 +238,50 @@ a.entry-card:active { transform: scale(0.985); }
   .entry-card { min-height: 70px; }
   .entry-main .card-tag { width: auto; max-width: calc(100% - 62px); margin-left: 62px; }
   .site-footer { padding-top: 32px; line-height: 1.7; }
+}
+
+/* The star wheel belongs to the page's depth, with reading surfaces in front. */
+.celestial-stage { position: relative; isolation: isolate; min-height: 990px; }
+.celestial-stage .hero { position: relative; z-index: 2; max-width: 640px; margin: auto; padding: 180px 0 0; pointer-events: none; }
+.celestial-stage .hero a, .celestial-stage .home-search { pointer-events: auto; }
+.hero-title { margin: 24px 0 16px; font-size: clamp(48px, 5.5vw, 76px); line-height: 1.25; font-weight: 400; letter-spacing: .24em; padding-left: .24em; color: var(--ink); text-shadow: 0 0 70px color-mix(in srgb, var(--accent-soft) 20%, transparent); }
+.celestial-stage .hero-kicker { font-size: 11px; letter-spacing: 8px; opacity: .75; }
+.celestial-stage .hero-quote { font-size: 13px; letter-spacing: 3px; }
+.celestial-stage .hero-actions { margin-top: 32px; }
+.celestial-stage .home-search { max-width: 490px; margin-top: 28px; }
+.orbit-annotation { position: absolute; top: 82px; left: 50%; transform: translateX(-50%); z-index: 1; display: flex; align-items: center; gap: 18px; white-space: nowrap; color: var(--muted); font: 10px/1.5 system-ui, sans-serif; letter-spacing: .2em; opacity: .7; pointer-events: none; }
+.orbit-annotation i { width: 36px; height: 1px; background: currentColor; opacity: .4; }
+.orbit-selection { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 26px; color: var(--muted); font-size: 11px; letter-spacing: 3px; }
+.orbit-selection b { color: var(--accent-soft); font-weight: 400; font-size: 17px; }
+.orbit-count { font: 9px/1.5 ui-monospace, monospace; opacity: .55; letter-spacing: 1px; }
+.celestial-stage .entries { position: relative; z-index: 2; width: min(100%, 740px); margin-top: 85px; gap: 12px; }
+.celestial-stage .entry-card { background: color-mix(in srgb, var(--night-2) 84%, transparent); border-color: color-mix(in srgb, var(--card-line) 70%, transparent); backdrop-filter: blur(16px); border-radius: 7px; }
+.celestial-stage .classics-grid { gap: 12px; }
+.celestial-stage .entry-icon { background: transparent; border: 0; opacity: .7; }
+.celestial-stage .classics-grid .entry-card { padding: 20px 8px; }
+.celestial-stage .classics-grid .entry-card h2 { font-size: 15px; }
+.celestial-stage .classics-grid .entry-card p { font-size: 10px; opacity: .7; }
+.celestial-stage + .site-footer { padding-top: 8px; font-size: 11px; opacity: .75; }
+@media (min-width: 701px) and (max-width: 1050px) {
+  .celestial-stage .hero { max-width: 560px; }
+  .celestial-stage .entries { width: min(100%, 650px); }
+}
+@media (max-width: 700px) {
+  .celestial-stage { min-height: 900px; }
+  .celestial-stage .hero { padding-top: 180px; max-width: 360px; }
+  .hero-title { font-size: 44px; letter-spacing: .16em; padding-left: .16em; margin-top: 20px; }
+  .celestial-stage .hero-kicker { font-size: 10px; letter-spacing: 5px; }
+  .celestial-stage .hero-quote { font-size: 11px; letter-spacing: 1px; }
+  .celestial-stage .hero-actions { margin-top: 24px; gap: 7px; }
+  .celestial-stage .btn { padding: 9px 13px; font-size: 12px; }
+  .celestial-stage .home-search { margin-top: 22px; }
+  .orbit-annotation { top: 24px; font-size: 8px; gap: 10px; }
+  .orbit-annotation i { width: 20px; }
+  .orbit-selection { margin-top: 18px; gap: 10px; font-size: 10px; }
+  .celestial-stage .entries { margin-top: 150px; }
+  .celestial-stage .classics-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
+  .celestial-stage .classics-grid .entry-card { display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 14px; gap: 8px; }
+  .celestial-stage .classics-grid .entry-icon { display: none; }
+  .celestial-stage .classics-grid h2 { letter-spacing: 1px; }
+  .celestial-stage .classics-grid p { line-height: 1.7; }
 }

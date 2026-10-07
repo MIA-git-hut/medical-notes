@@ -4,6 +4,7 @@ import { useData } from 'vitepress'
 import HomeConstellation from './HomeConstellation.vue'
 
 const { isDark } = useData()
+const selectedMansion = ref({ name: '角', quadrant: '东方青龙', index: 0 })
 
 const q = ref('')
 const results = ref([])
@@ -107,9 +108,12 @@ onBeforeUnmount(() => {
         </nav>
       </header>
 
-      <main>
+      <main class="celestial-stage">
+        <HomeConstellation @update:selected="selectedMansion = $event" />
+        <div class="orbit-annotation" aria-hidden="true"><span>二十八宿 · 天球环</span><i></i><span>拖动星环，循天入书</span></div>
         <section class="hero">
           <p class="hero-kicker">个人医学学习整理</p>
+          <h1 class="hero-title">溯本医源</h1>
           <p class="hero-quote">正气存内，邪不可干 · 把知识化为正气</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="/中药学/">开始学习</a>
@@ -146,9 +150,8 @@ onBeforeUnmount(() => {
               </div>
             </transition>
           </div>
+          <p class="orbit-selection"><span>{{ selectedMansion.quadrant }}</span><b>{{ selectedMansion.name }}宿</b><span class="orbit-count">{{ String(selectedMansion.index + 1).padStart(2, '0') }} / 28</span></p>
         </section>
-
-        <HomeConstellation />
 
         <section class="entries">
           <a class="entry-card entry-main" href="/中药学/">
