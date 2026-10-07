@@ -59,5 +59,8 @@ jobs:
       - name: Build static site
         run: npm run build
 
+      - name: Smoke-test compiled Node API
+        run: npm run test:api-build
+
       - name: Run browser tests
         run: npm run test:e2e

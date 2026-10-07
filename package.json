@@ -12,6 +12,7 @@
     "typecheck": "vue-tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
+    "test:api-build": "node tools/check-api-build.mjs",
     "preview": "vitepress preview docs",
     "build": "npm run content:build && npm run content:check && node tools/gen_flashcards.mjs && vitepress build docs && node tools/gen_sitemap.mjs && node tools/patch_pagefind_lang.mjs"
   },
