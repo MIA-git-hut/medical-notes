@@ -40,6 +40,19 @@ test('keeps the centered hero readable and its links and search interactive', as
   await expect(page).toHaveURL(/%E4%B8%AD%E8%8D%AF%E5%AD%A6|中药学/)
 })
 
+test('uses actual catalog stars rather than a repeated decorative pattern', async ({ page }) => {
+  await openHome(page)
+  const stars = (name: string) => page.locator(`[data-name="${name}"] .cluster-star`)
+  await expect(stars('角')).toHaveCount(2)
+  await expect(stars('心')).toHaveCount(3)
+  await expect(stars('参')).toHaveCount(7)
+  await expect(stars('奎')).toHaveCount(16)
+  expect(await stars('角').evaluateAll(items => items.map(item => Number(item.getAttribute('data-hip'))))).toEqual([65474, 66249])
+  await page.locator('.star-source').click()
+  await expect(page.locator('.star-atlas figure')).toHaveCount(28)
+  await expect(page.locator('h1')).toHaveText('二十八宿星图与资料来源')
+})
+
 test('uses distinct light and dark orbit palettes', async ({ page }) => {
   await openHome(page)
   const palette = () => page.locator('.celestial-orbit').evaluate(element => ({
@@ -83,6 +96,26 @@ test('supports click and keyboard selection with the central readout', async ({ 
   await expect(page.locator('.orbit-selection b')).toHaveText('角宿')
   await page.keyboard.press('End')
   await expect(page.locator('.orbit-selection b')).toHaveText('轸宿')
+})
+
+test('clicking either half keeps the selected constellation on that half', async ({ page }) => {
+  await openHome(page)
+  const dial = page.getByTestId('constellation-dial')
+  const svgBox = (await dial.locator('svg').boundingBox())!
+  const centerX = svgBox.x + svgBox.width / 2
+  const selectedX = () => page.locator('.mansion.selected .mansion-star').evaluate(element => {
+    const circle = element as SVGCircleElement
+    const point = new DOMPoint(circle.cx.baseVal.value, circle.cy.baseVal.value)
+    return point.matrixTransform(circle.getScreenCTM()!).x
+  })
+  await page.locator('[data-name="奎"] .mansion-hit').click()
+  await expect(dial).toHaveAttribute('data-focus-side', 'right')
+  await expect(page.locator('.orbit-selection b')).toHaveText('奎宿')
+  expect(await selectedX()).toBeGreaterThan(centerX + 200)
+  await page.locator('[data-name="房"] .mansion-hit').click()
+  await expect(dial).toHaveAttribute('data-focus-side', 'left')
+  await expect(page.locator('.orbit-selection b')).toHaveText('房宿')
+  expect(await selectedX()).toBeLessThan(centerX - 200)
 })
 
 test('drag rotates continuously before release and then settles', async ({ page }) => {

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import OrbitBeast from './OrbitBeast.vue'
+import catalog from '../../../content/astronomy/mansions.json'
+import { projectAsterism } from '../../../shared/star-projection'
 
 type Quadrant = {
   id: 'east' | 'north' | 'west' | 'south'
@@ -12,6 +14,7 @@ type SelectedMansion = {
   name: string
   quadrant: string
   index: number
+  missingCount: number
 }
 
 const emit = defineEmits<{
@@ -38,19 +41,15 @@ const mansions = quadrants.flatMap((quadrant, quadrantIndex) =>
     const radians = angle * Math.PI / 180
     const radialX = Math.cos(radians)
     const radialY = Math.sin(radians)
-    const tangentX = -radialY
-    const tangentY = radialX
-    const point = (tangent: number, radial: number) => ({
-      x: CENTER + (PRIMARY_RADIUS + radial) * radialX + tangent * tangentX,
-      y: CENTER + (PRIMARY_RADIUS + radial) * radialY + tangent * tangentY,
-    })
-    const offsets = [
-      [-18, 5],
-      [-7, -8 - (index % 3) * 2],
-      [5, 3],
-      [17 + (index % 4), -6],
-    ] as const
-    const stars = offsets.map(([tangent, radial]) => point(tangent, radial))
+    const source = catalog.mansions.find(item => item.name === name)!
+    const x = CENTER + PRIMARY_RADIUS * radialX
+    const y = CENTER + PRIMARY_RADIUS * radialY
+    const stars = projectAsterism(source.stars).map(star => ({ ...star, x: x + star.x, y: y + star.y }))
+    const byHip = new Map(stars.map(star => [star.hip, star]))
+    const lines = source.lines.map(line => line.map(hip => {
+      const star = byHip.get(hip)!
+      return `${star.x.toFixed(3)},${star.y.toFixed(3)}`
+    }).join(' '))
 
     return {
       name,
@@ -60,7 +59,8 @@ const mansions = quadrants.flatMap((quadrant, quadrantIndex) =>
       x: CENTER + PRIMARY_RADIUS * radialX,
       y: CENTER + PRIMARY_RADIUS * radialY,
       stars,
-      line: stars.map(({ x, y }) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' '),
+      lines,
+      missingCount: source.missingOrdinals.length,
     }
   }),
 )
@@ -80,15 +80,11 @@ const atmosphereStars = Array.from({ length: 54 }, (_, index) => {
   }
 })
 
-const atmosphereLines = Array.from({ length: 14 }, (_, index) => ({
-  start: atmosphereStars[(index * 3) % atmosphereStars.length],
-  end: atmosphereStars[(index * 3 + 1) % atmosphereStars.length],
-}))
-
 const dial = ref<HTMLElement | null>(null)
 const svg = ref<SVGSVGElement | null>(null)
 const rotation = ref(0)
 const selectedIndex = ref(0)
+const focusSide = ref<'left' | 'right'>('left')
 const dragging = ref(false)
 const reducedMotion = ref(false)
 const wheelTransform = computed(() => `rotate(${rotation.value} ${CENTER} ${CENTER})`)
@@ -155,7 +151,8 @@ function pointerAngle(event: PointerEvent) {
 }
 
 function updateSelection() {
-  const next = modulo(Math.round(-rotation.value / STEP), mansions.length)
+  const targetAngle = focusSide.value === 'left' ? 180 : 0
+  const next = modulo(Math.round((targetAngle - TARGET_ANGLE - rotation.value) / STEP), mansions.length)
   if (next === selectedIndex.value) return
   selectedIndex.value = next
   announceSelection()
@@ -167,6 +164,7 @@ function announceSelection() {
     name: mansion.name,
     quadrant: mansion.quadrant.name,
     index: mansion.index,
+    missingCount: mansion.missingCount,
   })
 }
 
@@ -176,7 +174,8 @@ function cancelAnimation() {
 }
 
 function equivalentTarget(index: number) {
-  const canonical = -modulo(index, mansions.length) * STEP
+  const targetAngle = focusSide.value === 'left' ? 180 : 0
+  const canonical = targetAngle - TARGET_ANGLE - modulo(index, mansions.length) * STEP
   return rotation.value + shortestDelta(canonical, rotation.value)
 }
 
@@ -213,6 +212,8 @@ function selectMansion(index: number) {
 
 function selectFromClick(index: number) {
   if (performance.now() < suppressClickUntil) return
+  const currentAngle = (mansions[index].angle + rotation.value) * Math.PI / 180
+  focusSide.value = Math.cos(currentAngle) < 0 ? 'left' : 'right'
   selectMansion(index)
 }
 
@@ -248,6 +249,7 @@ function onPointerDown(event: PointerEvent) {
   startX = event.clientX
   startY = event.clientY
   startAngle = pointerAngle(event)
+  focusSide.value = Math.cos(startAngle * Math.PI / 180) < 0 ? 'left' : 'right'
   previousAngle = startAngle
   previousTime = event.timeStamp
   angularVelocity = 0
@@ -350,6 +352,7 @@ onBeforeUnmount(() => {
     role="application"
     tabindex="0"
     data-testid="constellation-dial"
+    :data-focus-side="focusSide"
     :aria-label="`二十八宿星轮，当前选择${selected.quadrant.name}${selected.name}宿。使用方向键切换星宿。`"
     @keydown="onDialKeydown"
   >
@@ -406,14 +409,6 @@ onBeforeUnmount(() => {
         </g>
 
         <g class="atmosphere">
-          <line
-            v-for="(line, index) in atmosphereLines"
-            :key="`line-${index}`"
-            :x1="line.start.x"
-            :y1="line.start.y"
-            :x2="line.end.x"
-            :y2="line.end.y"
-          />
           <circle
             v-for="(star, index) in atmosphereStars"
             :key="`star-${index}`"
@@ -433,19 +428,23 @@ onBeforeUnmount(() => {
           :transform="sectorTransform(mansion)"
           @click.stop="selectFromClick(mansion.index)"
         >
-          <polyline class="constellation-line" :points="mansion.line" />
-          <circle
-            v-for="(star, starIndex) in mansion.stars"
-            :key="starIndex"
-            class="cluster-star"
-            :cx="star.x"
-            :cy="star.y"
-            :r="starIndex === 1 ? 2.2 : 1.25"
-          />
-          <circle class="mansion-hit" :cx="mansion.x" :cy="mansion.y" r="22" />
-          <circle class="mansion-star" :cx="mansion.x" :cy="mansion.y" :r="selectedIndex === mansion.index ? 6.5 : 3" />
-          <g class="label" :transform="labelTransform(mansion)">
-            <text :x="mansion.x" :y="mansion.y - 17" text-anchor="middle">{{ mansion.name }}</text>
+          <g :transform="labelTransform(mansion)" class="asterism-chart">
+            <title>{{ mansion.name }}宿：按星表投影，{{ mansion.stars.length }} 颗已确认主星{{ mansion.missingCount ? `，${mansion.missingCount} 颗待考` : '' }}</title>
+            <polyline v-for="(line, index) in mansion.lines" :key="index" class="constellation-line" :points="line" />
+            <circle
+              v-for="star in mansion.stars"
+              :key="star.hip"
+              class="cluster-star"
+              :data-hip="star.hip"
+              :cx="star.x"
+              :cy="star.y"
+              :r="Math.max(.9, Math.min(2.7, 2.7 - star.magnitude * .26))"
+            />
+            <circle class="mansion-star" :cx="mansion.x" :cy="mansion.y" r="31" />
+            <circle class="mansion-hit" :cx="mansion.x" :cy="mansion.y" r="32" />
+            <g class="label">
+              <text :x="mansion.x" :y="mansion.y - 34" text-anchor="middle">{{ mansion.name }}</text>
+            </g>
           </g>
         </g>
         <g v-for="(quadrant, index) in quadrants" :key="quadrant.id" class="orbital-beast" :data-beast="quadrant.id" :transform="beastTransform(index)">
@@ -518,7 +517,7 @@ svg {
 .orbital-beast text { fill: currentColor; stroke: none; font-size: 10px; letter-spacing: 3px; }
 .atmosphere { fill: var(--orbit-cyan); stroke: var(--orbit-cyan); }
 .atmosphere circle { opacity: .22; }
-.atmosphere line { stroke-width: .6; opacity: .12; vector-effect: non-scaling-stroke; }
+
 .mansion {
   color: var(--orbit-cyan);
   cursor: pointer;
@@ -529,16 +528,18 @@ svg {
   fill: none;
   stroke: currentColor;
   stroke-width: .7;
-  opacity: .2;
+  opacity: .48;
   vector-effect: non-scaling-stroke;
 }
-.cluster-star { fill: currentColor; opacity: .42; }
+.cluster-star { fill: currentColor; opacity: .75; }
 .mansion-hit { fill: transparent; stroke: none; }
 .mansion-star {
-  fill: var(--orbit-gold);
-  stroke: var(--orbit-cyan);
-  stroke-width: 1;
-  opacity: .58;
+  fill: none;
+  stroke: var(--orbit-gold);
+  stroke-width: .7;
+  stroke-dasharray: 2 12;
+  opacity: 0;
+  pointer-events: none;
   vector-effect: non-scaling-stroke;
 }
 .label text {
@@ -553,15 +554,9 @@ svg {
   stroke-width: 0;
 }
 .mansion.selected { color: var(--orbit-cyan); }
-.mansion.selected .constellation-line { opacity: .34; }
+.mansion.selected .constellation-line { opacity: .8; }
 .mansion.selected .cluster-star { opacity: .82; }
-.mansion.selected .mansion-star {
-  fill: var(--orbit-cyan);
-  stroke: white;
-  stroke-width: 1.5;
-  opacity: 1;
-  filter: url(#mansion-halo);
-}
+.mansion.selected .mansion-star { opacity: .55; }
 .mansion.selected .label text {
   fill: var(--orbit-cyan);
   font-size: 20px;

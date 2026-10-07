@@ -4,7 +4,7 @@ import { useData } from 'vitepress'
 import HomeConstellation from './HomeConstellation.vue'
 
 const { isDark } = useData()
-const selectedMansion = ref({ name: '角', quadrant: '东方青龙', index: 0 })
+const selectedMansion = ref({ name: '角', quadrant: '东方青龙', index: 0, missingCount: 0 })
 
 const q = ref('')
 const results = ref([])
@@ -151,6 +151,7 @@ onBeforeUnmount(() => {
             </transition>
           </div>
           <p class="orbit-selection"><span>{{ selectedMansion.quadrant }}</span><b>{{ selectedMansion.name }}宿</b><span class="orbit-count">{{ String(selectedMansion.index + 1).padStart(2, '0') }} / 28</span></p>
+          <a class="star-source" href="/星图说明">{{ selectedMansion.missingCount ? `${selectedMansion.name}宿有 ${selectedMansion.missingCount} 颗待考 · ` : '' }}星图与资料来源 ↗</a>
         </section>
 
         <section class="entries">

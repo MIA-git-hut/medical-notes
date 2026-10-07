@@ -7,7 +7,7 @@
     "dev": "npm run content:build && node tools/gen_flashcards.mjs && vitepress dev docs",
     "dev:api": "node --env-file-if-exists=.env.local --import tsx server/dev.ts",
     "db:migrate": "node --env-file-if-exists=.env.local --import tsx tools/migrate.ts",
-    "content:build": "node tools/build-study-content.mjs",
+    "content:build": "node tools/build-star-charts.mjs && node tools/build-study-content.mjs",
     "content:check": "node tools/check-study-content.mjs",
     "typecheck": "vue-tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",

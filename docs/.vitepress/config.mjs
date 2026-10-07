@@ -63,7 +63,7 @@ function scanDir(rel) {
     } else if (e.isDirectory() && !e.name.startsWith('.')) {
       const children = scanDir(`${rel}/${e.name}`)
       if (children.length > 0) {
-        items.push({ text: e.name, collapsed: false, items: children })
+        items.push({ text: e.name, collapsed: true, items: children })
       } else if (existsSync(join(docsDir, rel, e.name, 'index.md'))) {
         // 目录里只有 index.md 时，作为单页入口（如 四大经典/伤寒论/）
         items.push({ text: e.name, link: `/${rel}/${e.name}/` })

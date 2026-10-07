@@ -256,6 +256,8 @@ a.entry-card:active { transform: scale(0.985); }
 .orbit-annotation i { width: 36px; height: 1px; background: currentColor; opacity: .4; }
 .orbit-selection { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 26px; color: var(--muted); font-size: 11px; letter-spacing: 3px; }
 .orbit-selection b { color: var(--accent-soft); font-weight: 400; font-size: 17px; }
+.celestial-stage .star-source { display: inline-block; margin-top: 9px; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+.celestial-stage .star-source:hover { color: var(--accent-soft); }
 .orbit-count { font: 9px/1.5 ui-monospace, monospace; opacity: .55; letter-spacing: 1px; }
 .celestial-stage .entries { position: relative; z-index: 2; width: min(100%, 740px); margin-top: 85px; gap: 12px; }
 .celestial-stage .entry-card { background: color-mix(in srgb, var(--night-2) 84%, transparent); border-color: color-mix(in srgb, var(--card-line) 70%, transparent); backdrop-filter: blur(16px); border-radius: 7px; }
