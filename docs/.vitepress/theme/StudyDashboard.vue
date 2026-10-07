@@ -4,6 +4,8 @@ import type { Rating, StudyCard, StudySnapshot } from '../../../shared/study'
 import { preview } from '../../../shared/scheduler'
 import { StudyApiError, studyClient } from './study/client'
 import type { AuthProvider } from './study/client'
+// @ts-expect-error This small legacy parser is intentionally framework-free JavaScript.
+import { parseOldRecords } from './old-record-store.js'
 
 const ratingNames: Record<Rating, string> = { 1: '忘记', 2: '困难', 3: '记得', 4: '轻松' }
 const cards = ref<StudyCard[]>([]), me = ref<Awaited<ReturnType<typeof studyClient.me>> | null>(null)
@@ -14,21 +16,29 @@ const providers = ref<AuthProvider[]>([])
 const mode = ref<'review' | 'free'>('review'), now = ref(Date.now())
 const syncUnavailable = ref(false), needsRefresh = ref(false), categoryOpen = ref(false)
 const serverNote = ref<string | null>(null)
+const oldRecords = ref<Record<string, 'know' | 'unknown'>>({}), onlyLegacyUnknown = ref(false)
+const freeOrder = ref<string[]>([])
 const pendingReview = ref<{ cardId: string; rating: Rating; expectedVersion: number; requestId: string } | null>(null)
 let clock: ReturnType<typeof setInterval> | undefined
 const progress = computed(() => new Map((data.value?.progress || []).map(x => [x.cardId, x])))
 const notes = computed(() => new Map((data.value?.notes || []).map(x => [x.cardId, x])))
 const categories = computed(() => [...new Map(cards.value.map(x => [x.categoryId, x.category]))].map(([id, name]) => ({ id, name })))
 const pool = computed(() => category.value === 'all' ? cards.value : cards.value.filter(x => x.categoryId === category.value))
+const freePool = computed(() => {
+  const visible = onlyLegacyUnknown.value ? pool.value.filter(card => oldRecords.value[card.herb!.name] !== 'know') : pool.value
+  const byId = new Map(visible.map(card => [card.id, card]))
+  return freeOrder.value.map(id => byId.get(id)).filter((card): card is StudyCard => !!card)
+})
 const isNew = (cardId: string) => { const p = progress.value.get(cardId); return !p || p.schedule.reps === 0 || p.schedule.state === 0 }
 const queue = computed(() => {
-  if (!me.value?.user || !data.value || mode.value === 'free') return pool.value
+  if (!me.value?.user || !data.value || mode.value === 'free') return freePool.value
   const due = pool.value.filter(x => { const p = progress.value.get(x.id); return p && !isNew(x.id) && Date.parse(p.schedule.due) <= now.value })
     .sort((a, b) => Date.parse(progress.value.get(a.id)!.schedule.due) - Date.parse(progress.value.get(b.id)!.schedule.due))
   const available = Math.max(0, data.value.settings.dailyNewLimit - data.value.newCardsStudiedToday)
   return [...due, ...pool.value.filter(x => isNew(x.id)).slice(0, available)]
 })
 const current = computed(() => cards.value.find(x => x.id === currentId.value))
+const currentHerb = computed(() => current.value?.herb)
 const intervals = computed(() => {
   if (!current.value) return null
   const schedule = progress.value.get(current.value.id)?.schedule
@@ -151,7 +161,10 @@ async function manualRefresh(){
     needsRefresh.value=false;syncUnavailable.value=false;notice.value='学习数据已刷新'
   }catch(e){syncUnavailable.value=true;error.value=String(e instanceof Error?e.message:e)}finally{busy.value=false}
 }
-function next(){if(busy.value||!canLeave())return;const i=pool.value.findIndex(x=>x.id===currentId.value);currentId.value=pool.value[(i+1)%pool.value.length]?.id||'';flipped.value=false}
+function next(){if(busy.value||!canLeave())return;const i=queue.value.findIndex(x=>x.id===currentId.value);currentId.value=queue.value[(i+1)%queue.value.length]?.id||'';flipped.value=false}
+function previous(){if(busy.value||!canLeave())return;const i=queue.value.findIndex(x=>x.id===currentId.value);currentId.value=queue.value[(i-1+queue.value.length)%queue.value.length]?.id||'';flipped.value=false}
+function shuffleFree(){if(busy.value||!canLeave())return;const ids=freePool.value.map(card=>card.id);for(let i=ids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}const set=new Set(ids);freeOrder.value=[...ids,...freeOrder.value.filter(id=>!set.has(id))];currentId.value=ids[0]||'';flipped.value=false}
+function setLegacyFilter(event: Event){const input=event.target as HTMLInputElement;if(busy.value||!canLeave()){input.checked=onlyLegacyUnknown.value;return}onlyLegacyUnknown.value=input.checked;flipped.value=false;choose()}
 function key(e:KeyboardEvent){const t=e.target as HTMLElement;if(t?.matches('input,textarea,select,button,a,[contenteditable="true"]')||t?.isContentEditable)return;if(e.code==='Space'){e.preventDefault();flipped.value=!flipped.value}else if(flipped.value&&/^[1-4]$/.test(e.key))rate(Number(e.key) as Rating)}
 function beforeUnload(event: BeforeUnloadEvent) {
   if (!noteDirty.value) return
@@ -165,8 +178,8 @@ onMounted(async () => {
   window.addEventListener('beforeunload', beforeUnload)
   clock = setInterval(() => now.value = Date.now(), 30000)
   categoryOpen.value = window.matchMedia('(min-width: 701px)').matches
-  try { legacy.value = !!localStorage.getItem('sby-flashcards-v1') } catch { legacy.value = false }
-  try { cards.value = await studyClient.cards(); choose() }
+  try { const stored=localStorage.getItem('sby-flashcards-v1');legacy.value=!!stored;oldRecords.value=parseOldRecords(stored) } catch { legacy.value = false;oldRecords.value={} }
+  try { const loaded=await studyClient.cards();cards.value=loaded.filter(card=>card.kind==='herb'&&!!card.herb);freeOrder.value=cards.value.map(card=>card.id);choose() }
   catch (e) { error.value = `卡片加载失败：${String(e instanceof Error ? e.message : e)}` }
   const [identity, auth] = await Promise.allSettled([studyClient.me(), studyClient.providers()])
   if (identity.status === 'fulfilled') me.value = identity.value
@@ -201,17 +214,20 @@ onBeforeUnmount(() => {
     </div></details>
     <template v-if="data"><label>每日新卡目标<div class="row"><input v-model.number="limit" type="number" min="0" max="100"><button :disabled="busy" @click="settings">保存</button></div></label><button v-if="category!=='all'" class="danger" :disabled="busy" @click="reset">重置当前分类进度</button></template>
   </aside><main><div v-if="!current" class="panel empty">{{me?.user?'当前没有到期卡片或可用新卡。':'这个分类暂无卡片。'}}</div><template v-else>
-    <div class="meta"><span>{{current.category}}</span><span>{{mode==='review'?`待复习 ${queue.length} 张`:'自由练习'}}</span></div>
-    <button class="card" :class="{flipped}" @click="flipped=!flipped"><small>{{flipped?'答案':'问题'}}</small><span>{{flipped?current.answer:current.question}}</span><em>{{flipped?'请按实际回忆情况评分':'点击或按空格查看答案'}}</em></button>
-    <div v-if="me?.user&&mode==='review'" class="ratings"><button v-for="r in ([1,2,3,4] as Rating[])" :disabled="needsRefresh||!flipped||busy" @click="rate(r)"><b>{{ratingNames[r]}}</b><small>{{intervals?interval(intervals[r].due):'—'}}</small><kbd>{{r}}</kbd></button></div><div v-else class="next"><button :disabled="busy" @click="next">下一张</button></div>
-    <p class="estimate">下次间隔为调度估算，并不代表记忆能保持的真实时长。</p><div class="links"><a :href="current.noteUrl">查看原笔记</a><a :href="current.sourceUrl">{{current.sourceTitle||'查看来源'}}</a></div>
+    <div class="meta"><span>{{currentHerb?.chapter}}<template v-if="currentHerb?.subsection"> · {{currentHerb.subsection}}</template></span><span>{{mode==='review'?`待复习 ${queue.length} 张`:'自由练习'}}</span></div>
+    <div v-if="mode==='free'" class="free-tools"><label><input type="checkbox" :checked="onlyLegacyUnknown" :disabled="busy" @change="setLegacyFilter"> 仅看未掌握</label><button :disabled="busy" @click="shuffleFree">打乱顺序</button></div>
+    <button class="card" :class="{flipped}" @click="flipped=!flipped"><small>{{flipped?'药卡':'回忆'}}</small><span v-if="!flipped" class="card-content herb-name">{{currentHerb?.name}}</span><span v-else class="card-content herb-answer"><span class="herb-answer-name">{{currentHerb?.name}}</span><span v-if="currentHerb?.suji" class="herb-suji">{{currentHerb.suji}}</span><span v-if="currentHerb?.xingwei" class="herb-row"><b>性味</b><span>{{currentHerb.xingwei}}</span></span><span v-if="currentHerb?.guijing" class="herb-row"><b>归经</b><span>{{currentHerb.guijing}}</span></span><span v-if="currentHerb?.gongxiao.length" class="herb-list"><b>功效</b><span v-for="item in currentHerb.gongxiao" :key="item">{{item}}</span></span><span v-if="currentHerb?.zhuzhi.length" class="herb-list"><b>主治</b><span v-for="item in currentHerb.zhuzhi" :key="item">{{item}}</span></span></span><em>{{flipped?'请按实际回忆情况评分':'回忆性味、归经、功效与主治 · 点击或按空格翻面'}}</em></button>
+    <div v-if="current.status==='unverified'" class="provenance">原有笔记 · 待核对</div><div v-if="oldRecords[currentHerb?.name||'']" class="old-status">旧记录：{{oldRecords[currentHerb?.name||'']==='know'?'认识':'待复习'}}</div>
+    <div v-if="me?.user&&mode==='review'" class="ratings"><button v-for="r in ([1,2,3,4] as Rating[])" :disabled="needsRefresh||!flipped||busy" @click="rate(r)"><b>{{ratingNames[r]}}</b><small>{{intervals?interval(intervals[r].due):'—'}}</small><kbd>{{r}}</kbd></button></div><div v-else class="next"><button :disabled="busy" @click="previous">上一张</button><button :disabled="busy" @click="next">下一张</button></div>
+    <p class="estimate">下次间隔为调度估算，并不代表记忆能保持的真实时长。</p><div class="links"><a :href="current.noteUrl">查看原笔记</a><a v-if="current.sourceUrl!==current.noteUrl" :href="current.sourceUrl">{{current.sourceTitle||'查看来源'}}</a></div>
     <section v-if="data" class="panel notes"><h2>私人笔记</h2><textarea v-model="note" :disabled="busy" rows="5" placeholder="纯文本，仅自己可见"></textarea><div v-if="serverNote!==null" class="server-note"><b>服务端最新版本（只读）</b><pre>{{serverNote || '（空笔记）'}}</pre></div><button :disabled="busy" @click="saveNote">{{serverNote!==null?'保存合并后的笔记':'保存笔记'}}</button></section>
   </template></main></div>
-  <section v-if="data" class="panel history"><h2>当前分类复习历史</h2><p v-if="!history.length">暂无复习记录</p><ul><li v-for="h in history" :key="h.id"><span>{{cards.find(c=>c.id===h.cardId)?.question||h.cardId}}</span><b>{{ratingNames[h.rating]}}</b><time>{{new Date(h.reviewedAt).toLocaleString('zh-CN')}}</time></li></ul></section>
+  <section v-if="data" class="panel history"><h2>当前分类复习历史</h2><p v-if="!history.length">暂无复习记录</p><ul><li v-for="h in history" :key="h.id"><span>{{cards.find(c=>c.id===h.cardId)?.herb?.name||h.cardId}}</span><b>{{ratingNames[h.rating]}}</b><time>{{new Date(h.reviewedAt).toLocaleString('zh-CN')}}</time></li></ul></section>
   </template></div></template>
 
 <style scoped>
 .study{max-width:980px;min-width:0;margin:auto;color:var(--sby-text-1,var(--vp-c-text-1))}.panel{background:var(--sby-bg-card,var(--vp-c-bg-soft));border:1px solid var(--sby-border,var(--vp-c-divider));border-radius:14px}.banner,.legacy,.alert,.notice{padding:12px 15px;margin-bottom:12px;border-radius:9px;background:var(--vp-c-brand-soft);font-size:14px;overflow-wrap:anywhere}.legacy{background:var(--vp-c-bg-soft);color:var(--vp-c-text-2)}.alert{background:var(--vp-c-danger-soft);color:var(--vp-c-danger-1)}header,.row,.meta,.links,.modes{display:flex;align-items:center;gap:12px}header{margin:12px 0;flex-wrap:wrap}.identity{font-weight:600}.today{margin-left:auto;color:var(--vp-c-text-2)}.modes{gap:3px;padding:3px;background:var(--vp-c-bg-soft);border-radius:9px}.modes button{border:0;background:none;padding:7px 9px;border-radius:6px}.modes button.active{background:var(--vp-c-bg);color:var(--vp-c-brand-1)}button,select,input,textarea{font:inherit;color:inherit}.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px}.layout>main{min-width:0}aside{padding:15px;align-self:start}label{display:block;font-size:12px;color:var(--vp-c-text-2);margin-bottom:14px}select,input,textarea{box-sizing:border-box;width:100%;padding:8px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg)}.category-stats summary{margin-bottom:6px;font-size:12px;color:var(--vp-c-text-2);cursor:pointer}.cat{display:flex;width:100%;align-items:flex-start;justify-content:space-between;gap:6px;border:0;border-radius:7px;padding:8px;background:none;text-align:left}.cat small{text-align:right;color:var(--vp-c-text-3);font-size:10px;line-height:1.5;white-space:nowrap}.cat.active,.cat:hover{background:var(--vp-c-brand-soft)}.danger{border:0;background:none;color:var(--vp-c-danger-1)}.meta,.links{justify-content:space-between;font-size:13px;color:var(--vp-c-text-2);margin:0 2px 10px}.links{flex-wrap:wrap}.links a{overflow-wrap:anywhere}.card{width:100%;min-height:310px;padding:28px;display:flex;flex-direction:column;text-align:left;border:1px solid var(--vp-c-divider);border-radius:18px;background:var(--sby-bg-card,var(--vp-c-bg-soft));overflow-wrap:anywhere}.card.flipped{border-color:var(--vp-c-brand-1)}.card>small{color:var(--vp-c-brand-1)}.card>span{margin:auto 0;font-size:20px;line-height:1.75;white-space:pre-wrap}.card>em{font-size:12px;color:var(--vp-c-text-3);font-style:normal}.ratings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.ratings button{position:relative;min-height:44px;padding:9px;border:1px solid var(--vp-c-divider);border-radius:9px;background:var(--vp-c-bg-soft)}.ratings button>*{display:block}.ratings kbd{position:absolute;right:6px;top:5px}.next{text-align:right;margin-top:12px}.next button,.notes button{min-height:44px}.estimate{text-align:center;font-size:12px;color:var(--vp-c-text-3)}.notes,.history{padding:16px;margin-top:20px;min-width:0}.notes h2,.history h2{font-size:16px;margin:0 0 10px}.notes textarea{resize:vertical}.server-note{margin:8px 0;padding:10px;border-left:3px solid var(--vp-c-warning-1);background:var(--vp-c-bg)}.server-note b{font-size:12px}.server-note pre{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;color:var(--vp-c-text-2)}.history ul{list-style:none;padding:0}.history li{display:grid;grid-template-columns:minmax(0,1fr) 50px 150px;gap:10px;border-top:1px solid var(--vp-c-divider);padding:8px;font-size:13px}.history li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.empty{padding:35px;text-align:center}
+.free-tools{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-bottom:8px}.free-tools label{margin:0}.free-tools input{width:auto}.free-tools button{border:1px solid var(--vp-c-divider);border-radius:7px;background:var(--vp-c-bg-soft);padding:6px 10px}.card>.herb-name{font-size:42px;font-weight:600;letter-spacing:.12em}.card>.herb-answer{display:flex;flex-direction:column;gap:12px;width:100%;font-size:15px;line-height:1.65;white-space:normal}.herb-answer-name{font-size:24px;font-weight:600;letter-spacing:.1em}.herb-suji{color:var(--vp-c-brand-1);font-size:16px}.herb-row,.herb-list{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px}.herb-row b,.herb-list b{color:var(--vp-c-text-2);font-size:12px}.herb-list>span{grid-column:2}.provenance,.old-status{display:inline-block;margin:8px 8px 0 0;padding:4px 8px;border-radius:999px;background:var(--vp-c-warning-soft);color:var(--vp-c-warning-1);font-size:11px}.old-status{background:var(--vp-c-bg-soft);color:var(--vp-c-text-2)}.next{display:flex;justify-content:flex-end;gap:8px}
 @media(max-width:700px){header{align-items:center;margin:8px 0}.identity{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today{margin-left:0;order:3;font-size:12px}.modes{flex:1}.modes button{flex:1;min-height:44px}.layout{grid-template-columns:minmax(0,1fr);gap:14px}aside{padding:12px}aside>label{margin-bottom:0}.category-stats{margin-top:10px}.category-stats:not([open])>div{display:none}.card{min-height:240px;padding:20px}.ratings{grid-template-columns:repeat(2,minmax(0,1fr))}.ratings button{min-height:52px}.history li{grid-template-columns:minmax(0,1fr) 45px}.history time{display:none}.links{align-items:flex-start;flex-direction:column;gap:5px}}
 @media(max-width:380px){.study{font-size:14px}.banner,.legacy,.alert,.notice{padding:10px}.card{min-height:220px;padding:16px}.card>span{font-size:18px}.notes,.history{padding:12px}.meta{gap:6px}.meta span:last-child{white-space:nowrap}}
 @media(max-height:500px) and (orientation:landscape){.card{min-height:180px}.category-stats{display:none}.layout{gap:10px}}

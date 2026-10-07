@@ -10,7 +10,18 @@ export interface StudyCard {
   sourceUrl: string
   sourceTitle: string
   noteUrl: string
-  status: 'reviewed'
+  status: 'reviewed' | 'unverified'
+  kind?: 'herb' | 'excerpt'
+  herb?: {
+    name: string
+    chapter: string
+    subsection: string
+    suji: string
+    xingwei: string
+    guijing: string
+    gongxiao: string[]
+    zhuzhi: string[]
+  }
 }
 export interface ScheduleState {
   due: string

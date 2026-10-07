@@ -1,6 +1,8 @@
-import { access, readFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { collectHerbCards } from './gen_flashcards.mjs'
+import { createHerbStudyCards } from './herb-study-content.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const STUDY_CARD_FIELDS = ['id', 'contentId', 'categoryId', 'category', 'question', 'answer', 'sourceUrl', 'sourceTitle', 'noteUrl', 'status']
@@ -78,14 +80,13 @@ export function selectReviewedCards(cards, catalog) {
 
 async function runCli() {
   const load = async (path) => JSON.parse(await readFile(join(ROOT, path), 'utf8'))
-  const [cards, catalog] = await Promise.all([load('content/study-cards.json'), load('content/catalog.json')])
-  const existingPaths = new Set()
-  for (const item of catalog.contents ?? []) {
-    try { await access(join(ROOT, item.localPath)); existingPaths.add(item.localPath) } catch { /* validator reports it */ }
-  }
-  const result = validateStudyContent({ cards, catalog, existingPaths })
-  const published = selectReviewedCards(cards, catalog)
-  console.log(`[study-content] 源数据校验通过：${result.cardCount} 张源卡片，${published.length} 张可发布卡片，${result.categoryCount} 个类别`)
+  const registry = await load('content/herb-registry.json')
+  const sourceCards = collectHerbCards(ROOT)
+  const studyCards = createHerbStudyCards(sourceCards, registry)
+  const ids = new Set(studyCards.map((card) => card.id))
+  if (ids.size !== studyCards.length) throw new Error('生成的药卡存在重复 ID')
+  if (studyCards.some((card) => card.status !== 'unverified')) throw new Error('现有药卡不得被静默标记为已核对')
+  console.log(`[study-content] 主药卡校验通过：${sourceCards.length} 张现有药卡，${studyCards.length} 张未统一来源核对的学习卡`)
 }
 
 const invokedPath = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : ''

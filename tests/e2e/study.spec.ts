@@ -13,6 +13,27 @@ async function login(page: Page) {
 
 const question = (page: Page) => page.locator('.card > span')
 
+test('主学习入口使用原药卡字段并保留该药旧记录', async ({ page, request }) => {
+  const original = await (await request.get('/flashcards.json')).json()
+  const cards = await (await request.get('/study-cards.json')).json()
+  expect(cards).toHaveLength(original.length)
+  expect(cards.every((card: any) => card.kind === 'herb' && card.status === 'unverified')).toBe(true)
+  const first = cards[0]
+  const source = original.find((card: any) => card.url === first.noteUrl)
+  expect(first.herb).toEqual({ name: source.name, chapter: source.chapter, subsection: source.subsection, suji: source.suji, xingwei: source.xingwei, guijing: source.guijing, gongxiao: source.gongxiao, zhuzhi: source.zhuzhi })
+  await page.addInitScript(({ name }) => localStorage.setItem('sby-flashcards-v1', JSON.stringify({ [name]: 'know' })), { name: source.name })
+  await openStudy(page)
+  await expect(question(page)).toHaveText(source.name)
+  await expect(page.locator('.old-status')).toHaveText('旧记录：认识')
+  await page.locator('.card').click()
+  await expect(page.locator('.herb-suji')).toHaveText(source.suji)
+  await expect(question(page)).toContainText(source.xingwei)
+  await expect(question(page)).toContainText(source.guijing)
+  for (const value of [...source.gongxiao, ...source.zhuzhi]) await expect(question(page)).toContainText(value)
+  await expect(page.locator('.provenance')).toHaveText('原有笔记 · 待核对')
+  expect(await page.evaluate(name => JSON.parse(localStorage.getItem('sby-flashcards-v1')!)[name], source.name)).toBe('know')
+})
+
 test('游客可以自由练习且不会写入复习进度', async ({ page }) => {
   let reviewWrites = 0
   await page.route('**/api/study/reviews', route => {
@@ -23,7 +44,7 @@ test('游客可以自由练习且不会写入复习进度', async ({ page }) => 
   await expect(page.locator('.study .identity')).toHaveText('自由练习')
   const first = await question(page).textContent()
   await page.locator('.card').click()
-  await expect(page.locator('.card > small')).toHaveText('答案')
+  await expect(page.locator('.card > small')).toHaveText('药卡')
   await page.getByRole('button', { name: '下一张' }).click()
   await expect(question(page)).not.toHaveText(first || '')
   expect(reviewWrites).toBe(0)
@@ -34,7 +55,7 @@ test('登录后必须翻面才能评分，并可用键盘完成复习', async ({
   const first = await question(page).textContent()
   await expect(page.getByRole('button', { name: /记得/ })).toBeDisabled()
   await page.locator('body').press('Space')
-  await expect(page.locator('.card > small')).toHaveText('答案')
+  await expect(page.locator('.card > small')).toHaveText('药卡')
   const response = page.waitForResponse(res => res.url().includes('/api/study/reviews') && res.request().method() === 'POST')
   await page.locator('body').press('3')
   expect((await response).ok()).toBeTruthy()
@@ -44,7 +65,7 @@ test('登录后必须翻面才能评分，并可用键盘完成复习', async ({
   await page.locator('.card').click()
   await page.getByRole('button', { name: '下一张' }).focus()
   await page.keyboard.press('Enter')
-  await expect(page.locator('.card > small')).toHaveText('问题')
+  await expect(page.locator('.card > small')).toHaveText('回忆')
 })
 
 test('私人笔记保存后刷新仍恢复，退出后不再显示', async ({ page }) => {
@@ -126,7 +147,7 @@ test('同步接口故障时仍加载静态卡片并可自由练习', async ({ pa
   await expect(page.getByText('同步暂不可用')).toBeVisible()
   await expect(page.locator('.card')).toBeVisible()
   await page.locator('.card').click()
-  await expect(page.locator('.card > small')).toHaveText('答案')
+  await expect(page.locator('.card > small')).toHaveText('药卡')
 })
 
 for (const width of [320, 360, 390, 430]) {
