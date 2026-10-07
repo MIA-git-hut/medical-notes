@@ -1,12 +1,13 @@
 ---
-title: 药卡自测
+title: 药卡学习
 comment: false
+aside: false
 ---
 
-# 药卡自测
+# 药卡学习
 
-看药名，回忆性味归经与功效——点击卡片翻开核对。数据自动取自[中药学知识库](/中药学/)中的完整药卡，随整理进度更新。
+复习原有药卡，翻面核对原笔记。登录后可保存个人进度与笔记。[旧版记录入口](/自测/药卡浏览)
 
 <ClientOnly>
-  <Flashcard />
+  <StudyDashboard />
 </ClientOnly>

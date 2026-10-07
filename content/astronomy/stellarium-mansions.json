@@ -1,0 +1,1645 @@
+{
+  "schemaVersion": 2,
+  "source": {
+    "repository": "https://github.com/Stellarium/stellarium",
+    "commit": "e835ad6ee5171c9deac2bdb8f1d3003085691197",
+    "indexUrl": "https://raw.githubusercontent.com/Stellarium/stellarium/e835ad6ee5171c9deac2bdb8f1d3003085691197/skycultures/chinese/index.json",
+    "descriptionUrl": "https://raw.githubusercontent.com/Stellarium/stellarium/e835ad6ee5171c9deac2bdb8f1d3003085691197/skycultures/chinese/description.md",
+    "indexSha256": "426118e6238ae69edb319c91d1a74b705eaa758222e962206e58c49b9dac9d8a",
+    "descriptionSha256": "f0dec3d4fb115bb8d5667e96fb9af0450f33489ec02747c8229903c15b3a2cac",
+    "retrieved": "2026-10-07",
+    "skyCulture": {
+      "id": "chinese",
+      "region": "Eastern Asia",
+      "classification": [
+        "traditional"
+      ]
+    },
+    "license": {
+      "lineData": "CC BY-SA 4.0",
+      "sourceStatement": "CC BY-SA 4.0"
+    },
+    "authors": [
+      "Karrie Berglund / Digitalis Education Solutions, Inc. (initial contribution based on Hong Kong Space Museum star maps)",
+      "Sun Shuwei (more than 200 Xingguans and more than 3,000 stars, primarily based on Yi Shitong)"
+    ],
+    "historicalBasis": [
+      "Yi Shitong, Chinese and Western Contrast Star Chart and Catalogue 1950.0 (1981)",
+      "Complete Studies of Astronomical Instruments (仪象考成, 1756)",
+      "Continuation of Complete Studies of Astronomical Instruments (仪象考成续编, 1844)",
+      "Hong Kong Space Museum star maps"
+    ],
+    "references": [
+      "Yi Shitong. Chinese and Western Contrast Star Chart and Catalogue 1950.0. Science Press, 1981.",
+      "Pan Nai. The History of Stellar Observation in China. Academia Press, 2009. ISBN 9787807306948.",
+      "Yi Shitong. Chinese and Western Contrast Star Chart. Encyclopedia of China - Astronomy, 1980.",
+      "English-Chinese Glossary of Chinese Star Regions, Asterisms and Star Names, Hong Kong Space Museum.",
+      "AEEA Astronomy Education Information: Ancient Chinese constellation system."
+    ]
+  },
+  "scopeNotes": [
+    "These figures reproduce one Stellarium Chinese sky-culture mapping at the pinned commit; Chinese asterism identifications and line figures vary by historical period and scholarly reconstruction.",
+    "principalHipIds accepts only common_names entries named as the mansion plus an unqualified Roman numeral. Added stars, separately named subordinate asterisms, and question-marked candidates are excluded.",
+    "lines contains only contiguous sourceLine runs whose every adjacent endpoint is in principalHipIds. Removing a non-principal vertex never creates a new edge. sourceLines preserves the pinned Stellarium input verbatim.",
+    "The source states that Wings has 22 proper stars and 7 added stars, but provides only 15 unqualified HIP mappings, 3 question-marked candidates, and no mappings for 4 proper-star ordinals."
+  ],
+  "mansions": [
+    {
+      "index": 0,
+      "name": "角",
+      "native": "角宿",
+      "quadrant": {
+        "id": "east",
+        "name": "东方苍龙"
+      },
+      "stellariumId": "CON chinese 009",
+      "english": "Horn",
+      "pronounce": "Jiǎo Xiù",
+      "principalHipIds": [
+        65474,
+        66249
+      ],
+      "principalHipCount": 2,
+      "principalOrdinals": [
+        "I",
+        "II"
+      ],
+      "lines": [
+        [
+          65474,
+          66249
+        ]
+      ],
+      "sourceLines": [
+        [
+          65474,
+          66249
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 1,
+      "name": "亢",
+      "native": "亢宿",
+      "quadrant": {
+        "id": "east",
+        "name": "东方苍龙"
+      },
+      "stellariumId": "CON chinese 011",
+      "english": "Neck",
+      "pronounce": "Kàng Xiù",
+      "principalHipIds": [
+        69427,
+        69701,
+        70755,
+        69974
+      ],
+      "principalHipCount": 4,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV"
+      ],
+      "lines": [
+        [
+          69427,
+          69701,
+          70755
+        ],
+        [
+          69427,
+          69974
+        ]
+      ],
+      "sourceLines": [
+        [
+          69427,
+          69701,
+          70755
+        ],
+        [
+          69427,
+          69974
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 2,
+      "name": "氐",
+      "native": "氐宿",
+      "quadrant": {
+        "id": "east",
+        "name": "东方苍龙"
+      },
+      "stellariumId": "CON chinese 004",
+      "english": "Root",
+      "pronounce": "Dī Xiù",
+      "principalHipIds": [
+        72622,
+        74392,
+        76333,
+        74785
+      ],
+      "principalHipCount": 4,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV"
+      ],
+      "lines": [
+        [
+          72622,
+          74392,
+          76333,
+          74785
+        ]
+      ],
+      "sourceLines": [
+        [
+          72622,
+          74392,
+          76333,
+          74785
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 3,
+      "name": "房",
+      "native": "房宿",
+      "quadrant": {
+        "id": "east",
+        "name": "东方苍龙"
+      },
+      "stellariumId": "CON chinese 006",
+      "english": "Room",
+      "pronounce": "Fáng Xiù",
+      "principalHipIds": [
+        78265,
+        78104,
+        78401,
+        78820
+      ],
+      "principalHipCount": 4,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV"
+      ],
+      "lines": [
+        [
+          78820,
+          78401,
+          78265,
+          78104
+        ]
+      ],
+      "sourceLines": [
+        [
+          78820,
+          78401,
+          78265,
+          78104
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 4,
+      "name": "心",
+      "native": "心宿",
+      "quadrant": {
+        "id": "east",
+        "name": "东方苍龙"
+      },
+      "stellariumId": "CON chinese 026",
+      "english": "Heart",
+      "pronounce": "Xīn Xiù",
+      "principalHipIds": [
+        80112,
+        80763,
+        81266
+      ],
+      "principalHipCount": 3,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III"
+      ],
+      "lines": [
+        [
+          80112,
+          80763,
+          81266
+        ]
+      ],
+      "sourceLines": [
+        [
+          80112,
+          80763,
+          81266
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 5,
+      "name": "尾",
+      "native": "尾宿",
+      "quadrant": {
+        "id": "east",
+        "name": "东方苍龙"
+      },
+      "stellariumId": "CON chinese 024",
+      "english": "Tail",
+      "pronounce": "Wěi Xiù",
+      "principalHipIds": [
+        82514,
+        82396,
+        82671,
+        84143,
+        86228,
+        87073,
+        86670,
+        85927,
+        85696
+      ],
+      "principalHipCount": 9,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII",
+        "VIII",
+        "IX"
+      ],
+      "lines": [
+        [
+          82396,
+          82514,
+          82671,
+          84143,
+          86228,
+          87073,
+          86670,
+          85927
+        ],
+        [
+          86670,
+          85696
+        ]
+      ],
+      "sourceLines": [
+        [
+          82396,
+          82514,
+          82671,
+          84143,
+          86228,
+          87073,
+          86670,
+          85927
+        ],
+        [
+          86670,
+          85696
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 6,
+      "name": "箕",
+      "native": "箕宿",
+      "quadrant": {
+        "id": "east",
+        "name": "东方苍龙"
+      },
+      "stellariumId": "CON chinese 008",
+      "english": "Winnowing Basket",
+      "pronounce": "Jī Xiù",
+      "principalHipIds": [
+        88635,
+        89931,
+        90185,
+        89642
+      ],
+      "principalHipCount": 4,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV"
+      ],
+      "lines": [
+        [
+          88635,
+          89931,
+          90185,
+          89642
+        ]
+      ],
+      "sourceLines": [
+        [
+          88635,
+          89931,
+          90185,
+          89642
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 7,
+      "name": "斗",
+      "native": "斗宿",
+      "quadrant": {
+        "id": "north",
+        "name": "北方玄武"
+      },
+      "stellariumId": "CON chinese 005",
+      "english": "Dipper",
+      "pronounce": "Dǒu Xiù",
+      "principalHipIds": [
+        92041,
+        90496,
+        89341,
+        92855,
+        93864,
+        93506
+      ],
+      "principalHipCount": 6,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI"
+      ],
+      "lines": [
+        [
+          89341,
+          90496,
+          92041,
+          92855,
+          93864,
+          93506
+        ]
+      ],
+      "sourceLines": [
+        [
+          89341,
+          90496,
+          92041,
+          92855,
+          93864,
+          93506
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 8,
+      "name": "牛",
+      "native": "牛宿",
+      "quadrant": {
+        "id": "north",
+        "name": "北方玄武"
+      },
+      "stellariumId": "CON chinese 016",
+      "english": "Ox",
+      "pronounce": "Niú Xiù",
+      "principalHipIds": [
+        100345,
+        100064,
+        99572,
+        100881,
+        101123,
+        101027
+      ],
+      "principalHipCount": 6,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI"
+      ],
+      "lines": [
+        [
+          100064,
+          100345,
+          99572
+        ],
+        [
+          100345,
+          100881,
+          101123,
+          101027
+        ],
+        [
+          100345,
+          101027
+        ]
+      ],
+      "sourceLines": [
+        [
+          100064,
+          100345,
+          99572
+        ],
+        [
+          100345,
+          100881,
+          101123,
+          101027
+        ],
+        [
+          100345,
+          101027
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 9,
+      "name": "女",
+      "native": "女宿",
+      "quadrant": {
+        "id": "north",
+        "name": "北方玄武"
+      },
+      "stellariumId": "CON chinese 017",
+      "english": "Girl",
+      "pronounce": "Nǚ Xiù",
+      "principalHipIds": [
+        102618,
+        103045,
+        102945,
+        102624
+      ],
+      "principalHipCount": 4,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV"
+      ],
+      "lines": [
+        [
+          102618,
+          103045,
+          102945,
+          102624
+        ]
+      ],
+      "sourceLines": [
+        [
+          102618,
+          103045,
+          102945,
+          102624
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 10,
+      "name": "虚",
+      "native": "虚宿",
+      "quadrant": {
+        "id": "north",
+        "name": "北方玄武"
+      },
+      "stellariumId": "CON chinese 028",
+      "english": "Emptiness",
+      "pronounce": "Xū Xiù",
+      "principalHipIds": [
+        106278,
+        104987
+      ],
+      "principalHipCount": 2,
+      "principalOrdinals": [
+        "I",
+        "II"
+      ],
+      "lines": [
+        [
+          106278,
+          104987
+        ]
+      ],
+      "sourceLines": [
+        [
+          106278,
+          104987
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 11,
+      "name": "危",
+      "native": "危宿",
+      "quadrant": {
+        "id": "north",
+        "name": "北方玄武"
+      },
+      "stellariumId": "CON chinese 023",
+      "english": "Rooftop",
+      "pronounce": "Wēi Xiù",
+      "principalHipIds": [
+        109074,
+        109427,
+        107315
+      ],
+      "principalHipCount": 3,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III"
+      ],
+      "lines": [
+        [
+          109074,
+          109427,
+          107315
+        ]
+      ],
+      "sourceLines": [
+        [
+          109074,
+          109427,
+          107315
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 12,
+      "name": "室",
+      "native": "室宿",
+      "quadrant": {
+        "id": "north",
+        "name": "北方玄武"
+      },
+      "stellariumId": "CON chinese 018",
+      "english": "Encampment",
+      "pronounce": "Shì Xiù",
+      "principalHipIds": [
+        113963,
+        113881
+      ],
+      "principalHipCount": 2,
+      "principalOrdinals": [
+        "I",
+        "II"
+      ],
+      "lines": [
+        [
+          113963,
+          113881
+        ]
+      ],
+      "sourceLines": [
+        [
+          113963,
+          113881
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 13,
+      "name": "壁",
+      "native": "壁宿",
+      "quadrant": {
+        "id": "north",
+        "name": "北方玄武"
+      },
+      "stellariumId": "CON chinese 002",
+      "english": "Wall",
+      "pronounce": "Bì Xiù",
+      "principalHipIds": [
+        1067,
+        677
+      ],
+      "principalHipCount": 2,
+      "principalOrdinals": [
+        "I",
+        "II"
+      ],
+      "lines": [
+        [
+          1067,
+          677
+        ]
+      ],
+      "sourceLines": [
+        [
+          1067,
+          677
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 14,
+      "name": "奎",
+      "native": "奎宿",
+      "quadrant": {
+        "id": "west",
+        "name": "西方白虎"
+      },
+      "stellariumId": "CON chinese 012",
+      "english": "Legs",
+      "pronounce": "Kuí Xiù",
+      "principalHipIds": [
+        4463,
+        3693,
+        3885,
+        3031,
+        3092,
+        2912,
+        3881,
+        4436,
+        5447,
+        5175,
+        5586,
+        6315,
+        6193,
+        5742,
+        5571,
+        5131
+      ],
+      "principalHipCount": 16,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII",
+        "VIII",
+        "IX",
+        "X",
+        "XI",
+        "XII",
+        "XIII",
+        "XIV",
+        "XV",
+        "XVI"
+      ],
+      "lines": [
+        [
+          4463,
+          3693,
+          3885,
+          3031,
+          3092,
+          2912,
+          3881,
+          4436,
+          5447,
+          5175,
+          5586,
+          6315,
+          6193,
+          5742,
+          5571,
+          5131,
+          4463
+        ]
+      ],
+      "sourceLines": [
+        [
+          4463,
+          3693,
+          3885,
+          3031,
+          3092,
+          2912,
+          3881,
+          4436,
+          5447,
+          5175,
+          5586,
+          6315,
+          6193,
+          5742,
+          5571,
+          5131,
+          4463
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 15,
+      "name": "娄",
+      "native": "娄宿",
+      "quadrant": {
+        "id": "west",
+        "name": "西方白虎"
+      },
+      "stellariumId": "CON chinese 014",
+      "english": "Bond",
+      "pronounce": "Lóu Xiù",
+      "principalHipIds": [
+        8903,
+        8832,
+        9884
+      ],
+      "principalHipCount": 3,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III"
+      ],
+      "lines": [
+        [
+          9884,
+          8903,
+          8832
+        ]
+      ],
+      "sourceLines": [
+        [
+          9884,
+          8903,
+          8832
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 16,
+      "name": "胃",
+      "native": "胃宿",
+      "quadrant": {
+        "id": "west",
+        "name": "西方白虎"
+      },
+      "stellariumId": "CON chinese 025",
+      "english": "Stomach",
+      "pronounce": "Wèi Xiù",
+      "principalHipIds": [
+        12719,
+        13061,
+        13209
+      ],
+      "principalHipCount": 3,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III"
+      ],
+      "lines": [
+        [
+          12719,
+          13061,
+          13209
+        ]
+      ],
+      "sourceLines": [
+        [
+          12719,
+          13061,
+          13209
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 17,
+      "name": "昴",
+      "native": "昴宿",
+      "quadrant": {
+        "id": "west",
+        "name": "西方白虎"
+      },
+      "stellariumId": "CON chinese 015",
+      "english": "Hairy Head",
+      "pronounce": "Mǎo Xiù",
+      "principalHipIds": [
+        17499,
+        17531,
+        17579,
+        17573,
+        17608,
+        17702,
+        17847
+      ],
+      "principalHipCount": 7,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII"
+      ],
+      "lines": [
+        [
+          17499,
+          17531,
+          17579,
+          17573
+        ],
+        [
+          17499,
+          17608,
+          17702,
+          17847
+        ]
+      ],
+      "sourceLines": [
+        [
+          17499,
+          17531,
+          17579,
+          17573
+        ],
+        [
+          17499,
+          17608,
+          17702,
+          17847
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 18,
+      "name": "毕",
+      "native": "毕宿",
+      "quadrant": {
+        "id": "west",
+        "name": "西方白虎"
+      },
+      "stellariumId": "CON chinese 001",
+      "english": "Net",
+      "pronounce": "Bì Xiù",
+      "principalHipIds": [
+        20889,
+        20648,
+        20455,
+        20205,
+        21421,
+        20885,
+        20713,
+        18724
+      ],
+      "principalHipCount": 8,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII",
+        "VIII"
+      ],
+      "lines": [
+        [
+          20889,
+          20648,
+          20455,
+          20205
+        ],
+        [
+          21421,
+          20885,
+          20713,
+          20205,
+          18724
+        ]
+      ],
+      "sourceLines": [
+        [
+          20889,
+          20648,
+          20455,
+          20205
+        ],
+        [
+          21421,
+          20885,
+          20713,
+          20205,
+          18724
+        ],
+        [
+          21421,
+          21683
+        ]
+      ],
+      "omittedSourceHipIds": [
+        21683
+      ]
+    },
+    {
+      "index": 19,
+      "name": "觜",
+      "native": "觜宿",
+      "quadrant": {
+        "id": "west",
+        "name": "西方白虎"
+      },
+      "stellariumId": "CON chinese 034",
+      "english": "Turtle Beak",
+      "pronounce": "Zī Xiù",
+      "principalHipIds": [
+        26207,
+        26176,
+        26366
+      ],
+      "principalHipCount": 3,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III"
+      ],
+      "lines": [
+        [
+          26207,
+          26176
+        ],
+        [
+          26207,
+          26366
+        ]
+      ],
+      "sourceLines": [
+        [
+          26207,
+          26176
+        ],
+        [
+          26207,
+          26366
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 20,
+      "name": "参",
+      "native": "参宿",
+      "quadrant": {
+        "id": "west",
+        "name": "西方白虎"
+      },
+      "stellariumId": "CON chinese 003",
+      "english": "Three Stars",
+      "pronounce": "Shēn Xiù",
+      "principalHipIds": [
+        26727,
+        26311,
+        25930,
+        27989,
+        25336,
+        27366,
+        24436
+      ],
+      "principalHipCount": 7,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII"
+      ],
+      "lines": [
+        [
+          27989,
+          26727,
+          26311,
+          25930,
+          24436
+        ],
+        [
+          25930,
+          25336
+        ],
+        [
+          26727,
+          27366
+        ]
+      ],
+      "sourceLines": [
+        [
+          27989,
+          26727,
+          26311,
+          25930,
+          24436
+        ],
+        [
+          25930,
+          25336
+        ],
+        [
+          26727,
+          27366
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 21,
+      "name": "井",
+      "native": "井宿",
+      "quadrant": {
+        "id": "south",
+        "name": "南方朱雀"
+      },
+      "stellariumId": "CON chinese 010",
+      "english": "Well",
+      "pronounce": "Jǐng Xiù",
+      "principalHipIds": [
+        30343,
+        30883,
+        31681,
+        32362,
+        32246,
+        32921,
+        34088,
+        35350
+      ],
+      "principalHipCount": 8,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII",
+        "VIII"
+      ],
+      "lines": [
+        [
+          35350,
+          34088,
+          32921,
+          32246
+        ],
+        [
+          32921,
+          30883,
+          30343
+        ],
+        [
+          30883,
+          31681,
+          34088
+        ],
+        [
+          31681,
+          32362
+        ]
+      ],
+      "sourceLines": [
+        [
+          35350,
+          34088,
+          32921,
+          32246
+        ],
+        [
+          32921,
+          30883,
+          30343
+        ],
+        [
+          30883,
+          31681,
+          34088
+        ],
+        [
+          31681,
+          32362
+        ],
+        [
+          30343,
+          29655
+        ]
+      ],
+      "omittedSourceHipIds": [
+        29655
+      ]
+    },
+    {
+      "index": 22,
+      "name": "鬼",
+      "native": "鬼宿",
+      "quadrant": {
+        "id": "south",
+        "name": "南方朱雀"
+      },
+      "stellariumId": "CON chinese 007",
+      "english": "Ghosts",
+      "pronounce": "Guǐ Xiù",
+      "principalHipIds": [
+        41822,
+        41909,
+        42806,
+        42911
+      ],
+      "principalHipCount": 4,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV"
+      ],
+      "lines": [
+        [
+          41822,
+          41909,
+          42806,
+          42911
+        ]
+      ],
+      "sourceLines": [
+        [
+          41822,
+          41909,
+          42806,
+          42911
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 23,
+      "name": "柳",
+      "native": "柳宿",
+      "quadrant": {
+        "id": "south",
+        "name": "南方朱雀"
+      },
+      "stellariumId": "CON chinese 013",
+      "english": "Willow",
+      "pronounce": "Liǔ Xiù",
+      "principalHipIds": [
+        42313,
+        42402,
+        42799,
+        43234,
+        43109,
+        43813,
+        44659,
+        45336
+      ],
+      "principalHipCount": 8,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII",
+        "VIII"
+      ],
+      "lines": [
+        [
+          43234,
+          42799,
+          42402,
+          42313,
+          43109,
+          43813,
+          44659,
+          45336
+        ]
+      ],
+      "sourceLines": [
+        [
+          43234,
+          42799,
+          42402,
+          42313,
+          43109,
+          43813,
+          44659,
+          45336
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 24,
+      "name": "星",
+      "native": "星宿",
+      "quadrant": {
+        "id": "south",
+        "name": "南方朱雀"
+      },
+      "stellariumId": "CON chinese 027",
+      "english": "Star",
+      "pronounce": "Xīng Xiù",
+      "principalHipIds": [
+        46390,
+        46509,
+        46776,
+        47431,
+        45811,
+        45751,
+        46744
+      ],
+      "principalHipCount": 7,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII"
+      ],
+      "lines": [
+        [
+          46390,
+          46509,
+          46776,
+          47431
+        ],
+        [
+          46390,
+          45811,
+          45751,
+          46744
+        ],
+        [
+          46390,
+          46744
+        ]
+      ],
+      "sourceLines": [
+        [
+          46390,
+          46509,
+          46776,
+          47431
+        ],
+        [
+          46390,
+          45811,
+          45751,
+          46744
+        ],
+        [
+          46390,
+          46744
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 25,
+      "name": "张",
+      "native": "张宿",
+      "quadrant": {
+        "id": "south",
+        "name": "南方朱雀"
+      },
+      "stellariumId": "CON chinese 030",
+      "english": "Extended Net",
+      "pronounce": "Zhāng Xiù",
+      "principalHipIds": [
+        48356,
+        49841,
+        51069,
+        49321,
+        47452,
+        52085
+      ],
+      "principalHipCount": 6,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI"
+      ],
+      "lines": [
+        [
+          48356,
+          49841,
+          51069,
+          49321
+        ],
+        [
+          48356,
+          49321
+        ],
+        [
+          48356,
+          47452
+        ],
+        [
+          51069,
+          52085
+        ]
+      ],
+      "sourceLines": [
+        [
+          48356,
+          49841,
+          51069,
+          49321
+        ],
+        [
+          48356,
+          49321
+        ],
+        [
+          48356,
+          47452
+        ],
+        [
+          51069,
+          52085
+        ]
+      ],
+      "omittedSourceHipIds": []
+    },
+    {
+      "index": 26,
+      "name": "翼",
+      "native": "翼宿",
+      "quadrant": {
+        "id": "south",
+        "name": "南方朱雀"
+      },
+      "stellariumId": "CON chinese 029",
+      "english": "Wings",
+      "pronounce": "Yì Xiù",
+      "principalHipIds": [
+        53740,
+        55705,
+        57283,
+        55598,
+        52943,
+        58188,
+        55282,
+        56802,
+        55874,
+        55687,
+        53975,
+        56633,
+        57587,
+        54682,
+        54204
+      ],
+      "principalHipCount": 15,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII",
+        "VIII",
+        "IX",
+        "X",
+        "XII",
+        "XIII",
+        "XIV",
+        "XVI",
+        "XX"
+      ],
+      "lines": [
+        [
+          53740,
+          55705
+        ],
+        [
+          53740,
+          55598
+        ],
+        [
+          53740,
+          52943
+        ],
+        [
+          55705,
+          57283,
+          55598
+        ],
+        [
+          57283,
+          58188
+        ],
+        [
+          55705,
+          55282,
+          56802,
+          55874,
+          55687
+        ],
+        [
+          55687,
+          56633,
+          57587
+        ],
+        [
+          55598,
+          54682
+        ]
+      ],
+      "sourceLines": [
+        [
+          53740,
+          55705
+        ],
+        [
+          53740,
+          55598
+        ],
+        [
+          53740,
+          52943
+        ],
+        [
+          55705,
+          57283,
+          55598
+        ],
+        [
+          57283,
+          58188
+        ],
+        [
+          55705,
+          55282,
+          56802,
+          55874,
+          55687,
+          54214,
+          53975
+        ],
+        [
+          55687,
+          56633,
+          57587
+        ],
+        [
+          55598,
+          54682,
+          56245,
+          54204,
+          56830
+        ]
+      ],
+      "omittedSourceHipIds": [
+        54214,
+        56245,
+        56830
+      ],
+      "tentativePrincipalCandidates": [
+        {
+          "ordinal": "XI",
+          "hip": 54214,
+          "sourceLabel": "Wings XI?",
+          "references": [
+            2
+          ]
+        },
+        {
+          "ordinal": "XVII",
+          "hip": 56245,
+          "sourceLabel": "Wings XVII?",
+          "references": [
+            2
+          ]
+        },
+        {
+          "ordinal": "XXI",
+          "hip": 56830,
+          "sourceLabel": "Wings XXI?",
+          "references": [
+            2
+          ]
+        }
+      ],
+      "tentativeLines": [
+        [
+          55687,
+          54214
+        ],
+        [
+          54214,
+          53975
+        ],
+        [
+          54682,
+          56245
+        ],
+        [
+          56245,
+          54204
+        ],
+        [
+          54204,
+          56830
+        ]
+      ],
+      "unmappedTraditionalOrdinals": [
+        "XV",
+        "XVIII",
+        "XIX",
+        "XXII"
+      ],
+      "countNote": "The source states 22 Wings proper stars and 7 added stars. Fifteen HIP mappings are unqualified, three are explicitly question-marked candidates, and four proper-star ordinals have no HIP mapping; tentative and missing identities are excluded from principalHipIds and lines."
+    },
+    {
+      "index": 27,
+      "name": "轸",
+      "native": "轸宿",
+      "quadrant": {
+        "id": "south",
+        "name": "南方朱雀"
+      },
+      "stellariumId": "CON chinese 031",
+      "english": "Chariot",
+      "pronounce": "Zhěn Xiù",
+      "principalHipIds": [
+        59803,
+        59316,
+        60965,
+        61359
+      ],
+      "principalHipCount": 4,
+      "principalOrdinals": [
+        "I",
+        "II",
+        "III",
+        "IV"
+      ],
+      "lines": [
+        [
+          61359,
+          60965,
+          59803,
+          59316
+        ]
+      ],
+      "sourceLines": [
+        [
+          61359,
+          60965,
+          59803,
+          59316
+        ],
+        [
+          59803,
+          60189
+        ],
+        [
+          60965,
+          61174
+        ],
+        [
+          59316,
+          59199
+        ]
+      ],
+      "omittedSourceHipIds": [
+        60189,
+        61174,
+        59199
+      ]
+    }
+  ],
+  "validation": {
+    "requestedCount": 28,
+    "extractedCount": 28,
+    "allHavePrincipalHipIds": true,
+    "allLineEndpointsArePrincipal": true,
+    "allSourceLinesMatchPinnedIndex": true,
+    "allIdentifiersAreHipIntegers": true,
+    "uniquePrincipalHipCount": 154
+  }
+}
