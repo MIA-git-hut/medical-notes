@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { Rating, StudyCard, StudySnapshot } from '../../../shared/study'
 import { preview } from '../../../shared/scheduler'
 import { StudyApiError, studyClient } from './study/client'
@@ -18,6 +18,8 @@ const syncUnavailable = ref(false), needsRefresh = ref(false)
 const serverNote = ref<string | null>(null)
 const oldRecords = ref<Record<string, 'know' | 'unknown'>>({}), onlyLegacyUnknown = ref(false)
 const freeOrder = ref<string[]>([])
+const controls = ref<HTMLElement | null>(null), cardMain = ref<HTMLElement | null>(null)
+const chapterSearch = ref(''), reducedMotion = ref(false)
 const pendingReview = ref<{ cardId: string; rating: Rating; expectedVersion: number; requestId: string } | null>(null)
 let clock: ReturnType<typeof setInterval> | undefined
 const progress = computed(() => new Map((data.value?.progress || []).map(x => [x.cardId, x])))
@@ -52,8 +54,12 @@ const stats = computed(() => categories.value.map(c => {
   const due = ids.filter(id => !isNew(id) && Date.parse(progress.value.get(id)!.schedule.due) <= now.value).length
   const learning = ids.filter(id => { const p=progress.value.get(id); return p && !isNew(id) && p.schedule.state !== 2 }).length
   const names = cards.value.filter(x => x.categoryId === c.id).map(x => x.herb!.name)
-  return { ...c, total: ids.length, unlearned, due, learning, longTerm: ids.length-unlearned-learning, oldKnown: names.filter(name=>oldRecords.value[name]==='know').length, oldUnknown: names.filter(name=>oldRecords.value[name]==='unknown').length }
+  const oldKnown = names.filter(name=>oldRecords.value[name]==='know').length
+  const oldUnknown = names.filter(name=>oldRecords.value[name]==='unknown').length
+  return { ...c, total: ids.length, unlearned, due, learning, longTerm: ids.length-unlearned-learning, oldKnown, oldUnknown, practiced: oldKnown+oldUnknown, cloudLearned: ids.length-unlearned }
 }))
+const visibleStats = computed(() => { const q=chapterSearch.value.trim().toLowerCase();return q?stats.value.filter(item=>item.name.toLowerCase().includes(q)):stats.value })
+const selectedStats = computed(() => category.value==='all'?null:stats.value.find(item=>item.id===category.value))
 const scheduleGroups = computed(() => categories.value.map(group => {
   const groupCards = cards.value.filter(card => card.categoryId === group.id)
   const scheduled = groupCards.map(card => progress.value.get(card.id)).filter(item => item && !isNew(item.cardId))
@@ -98,13 +104,20 @@ function loadCurrentNote() {
   note.value = text
   savedNote.value = text
 }
-function switchCategory(value: string | Event) {
+async function switchCategory(value: string | Event) {
   if (busy.value) return
   const select = value instanceof Event ? value.target as HTMLSelectElement : null
   const next = select?.value || value as string
   if (!canLeave()) { if (select) select.value=category.value; return }
-  category.value=next; flipped.value=false
+  category.value=next;currentId.value='';flipped.value=false;choose()
+  await nextTick()
+  closeControls()
+  cardMain.value?.scrollIntoView({behavior:reducedMotion.value?'auto':'smooth',block:'start'})
+  cardMain.value?.focus({preventScroll:true})
 }
+function closeControls(returnFocus=false){const summary=controls.value?.querySelector(':scope > details[open] > summary') as HTMLElement|null;controls.value?.querySelectorAll('details[open]').forEach(item=>item.removeAttribute('open'));chapterSearch.value='';if(returnFocus)nextTick(()=>summary?.focus())}
+function toggleControl(event:Event){const opened=event.target as HTMLDetailsElement;if(!opened.open||opened.parentElement!==controls.value)return;controls.value?.querySelectorAll(':scope > details[open]').forEach(item=>{if(item!==opened)item.removeAttribute('open')})}
+function closeOnOutside(event:PointerEvent){if(controls.value&&!controls.value.contains(event.target as Node))closeControls()}
 function switchMode(value: 'review'|'free') {
   if (busy.value || value === mode.value || !canLeave()) return
   mode.value = value
@@ -209,7 +222,7 @@ function markLegacy(status: 'know' | 'unknown') {
   currentId.value = nextId && queue.value.some(card => card.id === nextId) ? nextId : queue.value[0]?.id || ''
   notice.value = status === 'know' ? '已记为“记住了”（仅保存在本机）' : '已记为“还要练”（仅保存在本机）'
 }
-function key(e:KeyboardEvent){const t=e.target as HTMLElement;if(t?.matches('input,textarea,select,button,a,summary,[contenteditable="true"]')||t?.isContentEditable)return;if(e.code==='Space'){e.preventDefault();flipped.value=!flipped.value}else if(flipped.value&&/^[1-4]$/.test(e.key))rate(Number(e.key) as Rating)}
+function key(e:KeyboardEvent){if(e.key==='Escape'){closeControls(true);return}const t=e.target as HTMLElement;if(t?.matches('input,textarea,select,button,a,summary,[contenteditable="true"]')||t?.isContentEditable)return;if(e.code==='Space'){e.preventDefault();flipped.value=!flipped.value}else if(flipped.value&&/^[1-4]$/.test(e.key))rate(Number(e.key) as Rating)}
 function beforeUnload(event: BeforeUnloadEvent) {
   if (!noteDirty.value) return
   event.preventDefault()
@@ -220,6 +233,8 @@ watch(currentId, () => { loadCurrentNote(); serverNote.value=null; flipped.value
 onMounted(async () => {
   window.addEventListener('keydown', key)
   window.addEventListener('beforeunload', beforeUnload)
+  document.addEventListener('pointerdown', closeOnOutside)
+  reducedMotion.value=window.matchMedia('(prefers-reduced-motion: reduce)').matches
   clock = setInterval(() => now.value = Date.now(), 30000)
   try { const stored=localStorage.getItem('sby-flashcards-v1');legacy.value=!!stored;oldRecords.value=parseOldRecords(stored) } catch { legacy.value = false;oldRecords.value={} }
   try { const loaded=await studyClient.cards();cards.value=loaded.filter(card=>card.kind==='herb'&&!!card.herb);freeOrder.value=cards.value.map(card=>card.id);choose() }
@@ -239,6 +254,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', key)
   window.removeEventListener('beforeunload', beforeUnload)
+  document.removeEventListener('pointerdown', closeOnOutside)
   if (clock) clearInterval(clock)
 })
 </script>
@@ -251,13 +267,13 @@ onBeforeUnmount(() => {
   <div v-if="legacy" class="legacy">旧版自测记录仍保留在本地，不会自动转入新的学习记录。</div>
   <div v-if="error" class="alert">{{error}} <button v-if="!noteDirty" :disabled="busy" @click="manualRefresh">刷新学习数据</button></div><div v-if="notice" class="notice">{{notice}} <button v-if="needsRefresh" :disabled="busy" @click="manualRefresh">立即刷新</button></div>
   <header><span class="identity">{{me?.user ? me.user.login : '自由练习'}}</span><div v-if="me?.user" class="modes"><button :disabled="busy" :class="{active:mode==='review'}" @click="switchMode('review')">正式复习</button><button :disabled="busy" :class="{active:mode==='free'}" @click="switchMode('free')">自由练习</button></div><a v-if="me?.isAdmin" href="/管理/">管理统计</a><span v-if="data" class="today">今日新卡 {{data.newCardsStudiedToday}} / {{data.settings.dailyNewLimit}}</span><button v-if="me?.user" :disabled="busy" @click="logout">退出</button></header>
-  <section class="controls panel"><label>学习分类<select :value="category" :disabled="busy" @change="switchCategory($event)"><option value="all">全部分类</option><option v-for="c in categories" :value="c.id">{{c.name}}</option></select></label>
-    <details class="category-stats"><summary>章节学习概况</summary><div class="chapter-list"><details v-for="s in stats" :key="s.id" class="chapter"><summary>{{s.name}}</summary><div class="chapter-body"><small>本机：记住 {{s.oldKnown}} · 待复习 {{s.oldUnknown}}</small><small v-if="data">云端：未学 {{s.unlearned}} · 到期 {{s.due}} · 学习中 {{s.learning}} · 长期 {{s.longTerm}}</small><button class="cat" :disabled="busy" :class="{active:category===s.id}" @click="switchCategory(s.id)">进入本章</button></div></details></div></details>
-    <details class="schedule"><summary>复习日程</summary><template v-if="data"><p class="schedule-timezone">按本机时区显示；每组时间为组内最早一张已安排药卡的复习时间。</p><div class="schedule-list"><button v-for="group in scheduleGroups" :key="group.id" :disabled="busy" @click="switchCategory(group.id)"><b>{{group.name}}</b><span v-if="group.earliest">{{formatDateTime(group.earliest)}} · {{relativeTime(group.earliest)}}</span><span v-else>尚未安排</span><small>到期 {{group.due}} · 未学 {{group.unlearned}}</small></button></div></template><p v-else>本机掌握标记不生成复习时间；登录并完成正式评分后安排。</p></details>
-    <details v-if="data" class="settings"><summary>学习设置</summary><label>每日新卡目标<div class="row"><input v-model.number="limit" type="number" min="0" max="100"><button :disabled="busy" @click="settings">保存</button></div></label><button v-if="category!=='all'" class="danger" :disabled="busy" @click="reset">重置当前分类进度</button></details>
+  <section ref="controls" class="controls panel"><label>学习分类<select :value="category" :disabled="busy" @change="switchCategory($event)"><option value="all">全部分类</option><option v-for="c in categories" :value="c.id">{{c.name}}</option></select></label>
+    <details class="category-stats" @toggle="toggleControl"><summary>章节学习概况</summary><div class="chapter-picker"><div class="picker-tools"><input v-model="chapterSearch" aria-label="搜索章节" type="search" placeholder="搜索章节"><button aria-label="关闭章节选择" @click="closeControls(true)">关闭</button></div><div v-if="!visibleStats.length" class="empty-search">没有匹配的章节</div><div v-else class="chapter-list"><details v-for="s in visibleStats" :key="s.id" class="chapter" :class="{selected:category===s.id}"><summary><span>{{s.name}}</span><small v-if="data&&mode==='review'">已学 {{s.cloudLearned}} / {{s.total}}</small><small v-else>已练 {{s.practiced}} / {{s.total}}</small></summary><div class="chapter-body"><small>本机练习：总数 {{s.total}} / 已练 {{s.practiced}} / 未练 {{s.total-s.practiced}} / 记住 {{s.oldKnown}} / 还要练 {{s.oldUnknown}}</small><small v-if="data">账号复习：已学 {{s.cloudLearned}} / 总数 {{s.total}} / 未学 {{s.unlearned}} / 到期 {{s.due}}</small><button class="cat" :disabled="busy" :class="{active:category===s.id}" @click="switchCategory(s.id)">进入本章</button></div></details></div></div></details>
+    <details class="schedule" @toggle="toggleControl"><summary>复习日程</summary><div class="schedule-picker"><template v-if="data"><p class="schedule-timezone">按本机时区显示；每组时间为组内最早一张已安排药卡的复习时间。</p><div class="schedule-list"><button v-for="group in scheduleGroups" :key="group.id" :disabled="busy" @click="switchCategory(group.id)"><b>{{group.name}}</b><span v-if="group.earliest">{{formatDateTime(group.earliest)}} · {{relativeTime(group.earliest)}}</span><span v-else>尚未安排</span><small>到期 {{group.due}} · 未学 {{group.unlearned}}</small></button></div></template><p v-else>本机掌握标记不生成复习时间；登录并完成正式评分后安排。</p></div></details>
+    <details v-if="data" class="settings" @toggle="toggleControl"><summary>学习设置</summary><div class="settings-picker"><label>每日新卡目标<div class="row"><input v-model.number="limit" type="number" min="0" max="100"><button :disabled="busy" @click="settings">保存</button></div></label><button v-if="category!=='all'" class="danger" :disabled="busy" @click="reset">重置当前分类进度</button></div></details>
   </section>
   <p class="next-review">{{data ? currentScheduleHint : '未安排复习 · 登录后正式评分可生成日程。'}}</p>
-  <main><div v-if="!current" class="panel empty">{{me?.user?'当前没有到期卡片或可用新卡。':'这个分类暂无卡片。'}}</div><template v-else>
+  <main ref="cardMain" class="study-main" tabindex="-1"><div v-if="selectedStats" class="group-summary"><template v-if="data&&mode==='review'">{{selectedStats.name}} · 已学 {{selectedStats.cloudLearned}} / {{selectedStats.total}} · 未学 {{selectedStats.unlearned}} · 到期 {{selectedStats.due}}</template><template v-else>{{selectedStats.name}} · 已练 {{selectedStats.practiced}} / {{selectedStats.total}} · 未练 {{selectedStats.total-selectedStats.practiced}}</template></div><div v-if="!current" class="panel empty">{{me?.user?'当前没有到期卡片或可用新卡。':'这个分类暂无卡片。'}}</div><template v-else>
     <div class="meta"><span>{{currentHerb?.chapter}}<template v-if="currentHerb?.subsection"> · {{currentHerb.subsection}}</template></span><span>{{mode==='review'?`待复习 ${queue.length} 张`:'自由练习'}}</span></div>
     <div v-if="mode==='free'" class="free-tools"><label><input type="checkbox" :checked="onlyLegacyUnknown" :disabled="busy" @change="setLegacyFilter"> 仅看未掌握</label><button :disabled="busy" @click="shuffleFree">打乱顺序</button></div>
     <button class="card" :class="{flipped}" @click="flipped=!flipped"><small>{{flipped?'药卡':'回忆'}}</small><span v-if="!flipped" class="card-content herb-name">{{currentHerb?.name}}</span><span v-else class="card-content herb-answer"><span class="herb-answer-name">{{currentHerb?.name}}</span><span v-if="currentHerb?.suji" class="herb-suji">{{currentHerb.suji}}</span><span v-if="currentHerb?.xingwei" class="herb-row"><b>性味</b><span>{{currentHerb.xingwei}}</span></span><span v-if="currentHerb?.guijing" class="herb-row"><b>归经</b><span>{{currentHerb.guijing}}</span></span><span v-if="currentHerb?.gongxiao.length" class="herb-list"><b>功效</b><span v-for="item in currentHerb.gongxiao" :key="item">{{item}}</span></span><span v-if="currentHerb?.zhuzhi.length" class="herb-list"><b>主治</b><span v-for="item in currentHerb.zhuzhi" :key="item">{{item}}</span></span></span><em>{{flipped?'请按实际回忆情况评分':'回忆性味、归经、功效与主治 · 点击或按空格翻面'}}</em></button>
@@ -274,7 +290,10 @@ onBeforeUnmount(() => {
 .free-tools{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-bottom:8px}.free-tools label{margin:0}.free-tools input{width:auto}.free-tools button{border:1px solid var(--vp-c-divider);border-radius:7px;background:var(--vp-c-bg-soft);padding:6px 10px}.card>.herb-name{font-size:42px;font-weight:600;letter-spacing:.12em}.card>.herb-answer{display:flex;flex-direction:column;gap:12px;width:100%;font-size:15px;line-height:1.65;white-space:normal}.herb-answer-name{font-size:24px;font-weight:600;letter-spacing:.1em}.herb-suji{color:var(--vp-c-brand-1);font-size:16px}.herb-row,.herb-list{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px}.herb-row b,.herb-list b{color:var(--vp-c-text-2);font-size:12px}.herb-list>span{grid-column:2}.provenance,.old-status{display:inline-block;margin:8px 8px 0 0;padding:4px 8px;border-radius:999px;background:var(--vp-c-warning-soft);color:var(--vp-c-warning-1);font-size:11px}.old-status{background:var(--vp-c-bg-soft);color:var(--vp-c-text-2)}.next{display:flex;justify-content:flex-end;gap:8px}
 .category-stats>summary{margin-bottom:6px;font-size:12px;color:var(--vp-c-text-2);cursor:pointer}.chapter-list{display:grid;gap:6px;margin-bottom:14px}.chapter{border-bottom:1px solid var(--vp-c-divider);padding:5px 0}.chapter summary{font-size:13px;cursor:pointer}.chapter-body{display:grid;gap:7px;padding:8px 0}.chapter-body small{color:var(--vp-c-text-3);line-height:1.5}.chapter-body .cat{justify-content:center;border:1px solid var(--vp-c-divider)}.primary-marks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.primary-marks button{min-height:50px;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-soft);font-size:15px}.primary-marks button b,.primary-marks button small{display:block}.primary-marks .practice{border-color:var(--vp-c-warning-1)}.primary-marks .remember{border-color:var(--vp-c-brand-1)}.rating-more{margin-top:8px;text-align:center}.rating-more summary{color:var(--vp-c-text-3);font-size:12px;cursor:pointer}.rating-more .ratings{grid-template-columns:repeat(2,minmax(0,1fr));max-width:360px;margin:8px auto 0}
 .controls{display:grid;grid-template-columns:minmax(180px,1fr) repeat(3,minmax(130px,auto));align-items:start;gap:10px;padding:12px;margin-bottom:10px}.controls>label{margin:0}.controls>details{margin:0;min-width:0}.controls>details>summary{margin:0}.controls>details>summary{min-height:38px;line-height:38px;padding:0 9px;border:1px solid var(--vp-c-divider);border-radius:8px;cursor:pointer;color:var(--vp-c-text-2);font-size:13px}.controls>details[open]{grid-column:1/-1}.controls>details[open]>summary{margin-bottom:8px}.schedule-list{display:grid;gap:6px}.schedule-list button{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;text-align:left;padding:9px;border:0;border-radius:7px;background:var(--vp-c-bg);color:var(--vp-c-text-1)}.schedule-list button span,.schedule-list button small{color:var(--vp-c-text-2)}.schedule>p{margin:8px 0;color:var(--vp-c-text-2);font-size:13px}.settings>label{max-width:320px}.next-review{margin:0 2px 10px;color:var(--vp-c-text-2);font-size:13px}
-@media(max-width:700px){header{align-items:center;margin:8px 0}.identity{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today{margin-left:0;order:3;font-size:12px}.modes{flex:1}.modes button{flex:1;min-height:44px}.controls{grid-template-columns:1fr 1fr;padding:10px}.controls>label{grid-column:1/-1}.controls>.settings{grid-column:1/-1}.controls>details[open]{grid-column:1/-1}.schedule-list button{grid-template-columns:1fr}.card{min-height:240px;padding:20px}.ratings{grid-template-columns:repeat(2,minmax(0,1fr))}.ratings button{min-height:52px}.history li{grid-template-columns:minmax(0,1fr) 45px}.history time{display:none}.links{align-items:flex-start;flex-direction:column;gap:5px}}
+.controls{position:relative;z-index:4}.controls>details[open]{grid-column:auto}.chapter-picker,.schedule-picker,.settings-picker{position:absolute;z-index:10;top:calc(100% + 6px);left:0;width:100%;box-sizing:border-box;max-height:min(55dvh,360px);overflow:auto;padding:12px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg);box-shadow:0 18px 45px rgba(0,0,0,.2)}.picker-tools{position:sticky;top:-12px;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:0 0 10px;background:var(--vp-c-bg)}.picker-tools button{border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-soft)}.chapter summary{display:flex;justify-content:space-between;gap:8px}.chapter summary small{color:var(--vp-c-text-3);white-space:nowrap}.chapter.selected{border-left:3px solid var(--vp-c-brand-1);padding-left:8px}.settings-picker>label{max-width:320px}.group-summary{margin:0 2px 8px;color:var(--vp-c-text-2);font-size:13px}.study-main:focus{outline:none}
+.controls>details[open]>summary{margin-bottom:0}.chapter summary{display:list-item}.chapter summary small{float:right;margin-left:8px}.empty-search{padding:24px;text-align:center;color:var(--vp-c-text-3)}.study-main{scroll-margin-top:100px}.study-main:focus{outline:none}
+.chapter{margin:0;padding:0}.chapter>summary{min-height:40px;margin:0;line-height:40px}.chapter-body small,.chapter summary small{color:var(--vp-c-text-2)}
+@media(max-width:700px){header{align-items:center;margin:8px 0}.identity{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today{margin-left:0;order:3;font-size:12px}.modes{flex:1}.modes button{flex:1;min-height:44px}.controls{grid-template-columns:1fr 1fr;padding:10px}.controls>label{grid-column:1/-1}.controls>.settings{grid-column:1/-1}.chapter-picker,.schedule-picker,.settings-picker{position:fixed;top:auto;right:12px;bottom:16px;left:12px;width:auto;max-height:min(55dvh,360px)}.schedule-list button{grid-template-columns:1fr}.card{min-height:240px;padding:20px}.ratings{grid-template-columns:repeat(2,minmax(0,1fr))}.ratings button{min-height:52px}.history li{grid-template-columns:minmax(0,1fr) 45px}.history time{display:none}.links{align-items:flex-start;flex-direction:column;gap:5px}}
 @media(max-width:380px){.study{font-size:14px}.banner,.legacy,.alert,.notice{padding:10px}.card{min-height:220px;padding:16px}.card>span{font-size:18px}.notes,.history{padding:12px}.meta{gap:6px}.meta span:last-child{white-space:nowrap}}
 @media(max-height:500px) and (orientation:landscape){.card{min-height:180px}}
 </style>
