@@ -242,6 +242,9 @@ a.entry-card:active { transform: scale(0.985); }
 
 /* The star wheel belongs to the page's depth, with reading surfaces in front. */
 .celestial-stage { position: relative; isolation: isolate; min-height: 990px; }
+.celestial-stage::before, .celestial-stage::after { content: ''; position: absolute; z-index: 1; pointer-events: none; left: -15%; width: 130%; height: 190px; opacity: .3; background: radial-gradient(ellipse at 25% 50%, color-mix(in srgb, var(--accent-soft) 10%, transparent), transparent 55%), radial-gradient(ellipse at 75% 65%, color-mix(in srgb, var(--muted) 12%, transparent), transparent 58%); filter: blur(22px); }
+.celestial-stage::before { top: 60px; }
+.celestial-stage::after { bottom: 0; }
 .celestial-stage .hero { position: relative; z-index: 2; max-width: 640px; margin: auto; padding: 180px 0 0; pointer-events: none; }
 .celestial-stage .hero a, .celestial-stage .home-search { pointer-events: auto; }
 .hero-title { margin: 24px 0 16px; font-size: clamp(48px, 5.5vw, 76px); line-height: 1.25; font-weight: 400; letter-spacing: .24em; padding-left: .24em; color: var(--ink); text-shadow: 0 0 70px color-mix(in srgb, var(--accent-soft) 20%, transparent); }

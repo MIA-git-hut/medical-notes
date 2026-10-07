@@ -55,6 +55,21 @@ test('uses distinct light and dark orbit palettes', async ({ page }) => {
   expect(dark).not.toEqual(light)
 })
 
+test('restores all four beasts and magnifies entire sectors at the side focus', async ({ page }) => {
+  await openHome(page)
+  await expect(page.locator('.orbital-beast')).toHaveCount(4)
+  expect(await page.locator('.orbital-beast').evaluateAll(items => items.map(item => item.getAttribute('data-beast')))).toEqual(['east', 'north', 'west', 'south'])
+  const mansion = page.locator('[data-name="角"]')
+  const focused = await mansion.getAttribute('transform')
+  expect(focused).toContain('scale(1.7)')
+  await page.getByTestId('constellation-dial').focus()
+  for (let index = 0; index < 7; index++) await page.keyboard.press('ArrowRight')
+  const distant = await mansion.getAttribute('transform')
+  expect(distant).toContain('scale(1)')
+  expect(await page.locator('.celestial-orbit').evaluate(el => getComputedStyle(el).maskImage)).toContain('linear-gradient')
+  await expect(page.locator('.ticks .major')).toHaveCount(28)
+})
+
 test('supports click and keyboard selection with the central readout', async ({ page }) => {
   await openHome(page)
   await page.locator('[data-testid="mansion-button"][data-name="房"]').click()

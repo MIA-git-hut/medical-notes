@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import OrbitBeast from './OrbitBeast.vue'
 
 type Quadrant = {
   id: 'east' | 'north' | 'west' | 'south'
@@ -26,7 +27,7 @@ const quadrants: readonly Quadrant[] = [
 
 const CENTER = 590
 const PRIMARY_RADIUS = 475
-const TARGET_ANGLE = -65
+const TARGET_ANGLE = 180
 const STEP = 360 / 28
 const DRAG_THRESHOLD = 6
 
@@ -55,6 +56,7 @@ const mansions = quadrants.flatMap((quadrant, quadrantIndex) =>
       name,
       quadrant,
       index,
+      angle,
       x: CENTER + PRIMARY_RADIUS * radialX,
       y: CENTER + PRIMARY_RADIUS * radialY,
       stars,
@@ -91,6 +93,37 @@ const dragging = ref(false)
 const reducedMotion = ref(false)
 const wheelTransform = computed(() => `rotate(${rotation.value} ${CENTER} ${CENTER})`)
 const selected = computed(() => mansions[selectedIndex.value])
+
+// A fixed lateral lens magnifies an entire sector as it reaches either side.
+function depth(angle: number) {
+  return Math.pow(Math.abs(Math.cos((angle + rotation.value) * Math.PI / 180)), 10)
+}
+function pointAt(angle: number, radius: number) {
+  const radians = angle * Math.PI / 180
+  const projected = radius + 12 * depth(angle)
+  return { x: CENTER + Math.cos(radians) * projected, y: CENTER + Math.sin(radians) * projected }
+}
+function ringPath(radius: number) {
+  return Array.from({ length: 169 }, (_, index) => {
+    const point = pointAt(index * 360 / 168, radius)
+    return `${index ? 'L' : 'M'}${point.x.toFixed(2)},${point.y.toFixed(2)}`
+  }).join(' ') + ' Z'
+}
+function sectorTransform(mansion: typeof mansions[number]) {
+  const point = pointAt(mansion.angle, PRIMARY_RADIUS)
+  const scale = 1 + .7 * depth(mansion.angle)
+  return `translate(${point.x} ${point.y}) scale(${scale}) translate(${-mansion.x} ${-mansion.y})`
+}
+function beastTransform(index: number) {
+  const angle = TARGET_ANGLE + index * 90
+  const point = pointAt(angle, 392)
+  const scale = 1.05 + .55 * depth(angle)
+  return `translate(${point.x} ${point.y}) rotate(${-rotation.value}) scale(${scale}) translate(-50 -50)`
+}
+const projectedTicks = computed(() => ticks.map(tick => ({ ...tick,
+  start: pointAt(tick.angle - 90, tick.major ? 534 : 529),
+  end: pointAt(tick.angle - 90, tick.major ? 510 - 10 * depth(tick.angle - 90) : 519),
+})))
 
 let activePointer: number | null = null
 let pointerCaptured = false
@@ -353,23 +386,22 @@ onBeforeUnmount(() => {
       />
 
       <g class="wheel-graphics" :transform="wheelTransform" mask="url(#celestial-mask)">
-        <circle class="orbit orbit-outer" :cx="CENTER" :cy="CENTER" r="520" />
-        <circle class="orbit orbit-primary" :cx="CENTER" :cy="CENTER" r="475" />
-        <circle class="orbit orbit-inner" :cx="CENTER" :cy="CENTER" r="430" />
-        <circle class="orbit orbit-echo" :cx="CENTER" :cy="CENTER" r="452" />
-        <circle class="orbit orbit-echo orbit-echo-wide" :cx="CENTER" :cy="CENTER" r="498" />
+        <path class="orbit orbit-outer" :d="ringPath(520)" />
+        <path class="orbit orbit-primary" :d="ringPath(475)" />
+        <path class="orbit orbit-inner" :d="ringPath(430)" />
+        <path class="orbit orbit-echo" :d="ringPath(452)" />
+        <path class="orbit orbit-echo orbit-echo-wide" :d="ringPath(498)" />
 
         <g class="ticks">
           <line
-            v-for="tick in ticks"
+            v-for="tick in projectedTicks"
             :key="tick.angle"
             class="tick"
             :class="{ major: tick.major }"
-            :x1="CENTER"
-            :y1="tick.major ? 63 : 68"
-            :x2="CENTER"
-            :y2="tick.major ? 82 : 77"
-            :transform="`rotate(${tick.angle} ${CENTER} ${CENTER})`"
+            :x1="tick.start.x"
+            :y1="tick.start.y"
+            :x2="tick.end.x"
+            :y2="tick.end.y"
           />
         </g>
 
@@ -398,6 +430,7 @@ onBeforeUnmount(() => {
           :class="{ selected: selectedIndex === mansion.index }"
           data-testid="mansion-button"
           :data-name="mansion.name"
+          :transform="sectorTransform(mansion)"
           @click.stop="selectFromClick(mansion.index)"
         >
           <polyline class="constellation-line" :points="mansion.line" />
@@ -415,6 +448,10 @@ onBeforeUnmount(() => {
             <text :x="mansion.x" :y="mansion.y - 17" text-anchor="middle">{{ mansion.name }}</text>
           </g>
         </g>
+        <g v-for="(quadrant, index) in quadrants" :key="quadrant.id" class="orbital-beast" :data-beast="quadrant.id" :transform="beastTransform(index)">
+          <OrbitBeast :id="quadrant.id" />
+          <text x="50" y="120" text-anchor="middle">{{ quadrant.name }}</text>
+        </g>
       </g>
 
     </svg>
@@ -428,14 +465,15 @@ onBeforeUnmount(() => {
   --orbit-gold: #b8a06b;
   position: absolute;
   z-index: 0;
-  top: -80px;
+  top: -180px;
   left: 50%;
-  width: 1180px;
-  height: 1180px;
+  width: 1360px;
+  height: 1360px;
   color: var(--orbit-cyan);
   pointer-events: none;
   transform: translateX(-50%);
   outline: none;
+  mask-image: linear-gradient(to bottom, transparent 18%, #000 36%, #000 62%, transparent 80%);
 }
 :global(.dark .celestial-orbit) {
   --orbit-cyan: #89d8ee;
@@ -471,7 +509,13 @@ svg {
   opacity: .14;
   vector-effect: non-scaling-stroke;
 }
-.tick.major { stroke: var(--orbit-gold); stroke-width: 1; opacity: .28; }
+.tick.major { stroke: var(--orbit-gold); stroke-width: 1.5; opacity: .8; }
+.orbital-beast { color: var(--orbit-cyan); opacity: .85; pointer-events: none; filter: drop-shadow(0 0 8px color-mix(in srgb, currentColor 30%, transparent)); }
+.orbital-beast[data-beast="east"] { color: #54bfae; }
+.orbital-beast[data-beast="west"] { color: #b8cddd; }
+.orbital-beast[data-beast="south"] { color: #d79476; }
+.orbital-beast[data-beast="north"] { color: #849dcd; }
+.orbital-beast text { fill: currentColor; stroke: none; font-size: 10px; letter-spacing: 3px; }
 .atmosphere { fill: var(--orbit-cyan); stroke: var(--orbit-cyan); }
 .atmosphere circle { opacity: .22; }
 .atmosphere line { stroke-width: .6; opacity: .12; vector-effect: non-scaling-stroke; }
@@ -520,7 +564,7 @@ svg {
 }
 .mansion.selected .label text {
   fill: var(--orbit-cyan);
-  font-size: 40px;
+  font-size: 20px;
   font-weight: 600;
   opacity: 1;
   stroke: color-mix(in srgb, var(--orbit-cyan) 16%, transparent);
@@ -549,11 +593,12 @@ svg {
 }
 @media (max-width: 700px) {
   .celestial-orbit {
-    top: 0;
-    width: 760px;
-    height: 760px;
+    top: 155px;
+    width: 440px;
+    height: 440px;
+    mask-image: linear-gradient(to bottom, transparent 22%, #000 43%, #000 57%, transparent 78%);
   }
   .label text { font-size: 18px; }
-  .mansion.selected .label text { font-size: 42px; }
+  .mansion.selected .label text { font-size: 24px; }
 }
 </style>
