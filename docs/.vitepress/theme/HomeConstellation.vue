@@ -19,6 +19,8 @@ type SelectedMansion = {
 
 const emit = defineEmits<{
   'update:selected': [selection: SelectedMansion]
+  'motion-start': []
+  'settled': [selection: SelectedMansion]
 }>()
 
 const quadrants: readonly Quadrant[] = [
@@ -168,6 +170,11 @@ function announceSelection() {
   })
 }
 
+function announceSettled() {
+  const mansion = mansions[selectedIndex.value]
+  emit('settled', { name: mansion.name, quadrant: mansion.quadrant.name, index: mansion.index, missingCount: mansion.missingCount })
+}
+
 function cancelAnimation() {
   if (animationFrame) cancelAnimationFrame(animationFrame)
   animationFrame = 0
@@ -184,6 +191,7 @@ function springTo(target: number, initialVelocity = 0) {
   if (reducedMotion.value) {
     rotation.value = target
     updateSelection()
+    announceSettled()
     return
   }
 
@@ -196,6 +204,7 @@ function springTo(target: number, initialVelocity = 0) {
     if (Math.abs(distance) < .025 && Math.abs(velocity) < .025) {
       rotation.value = target
       animationFrame = 0
+      announceSettled()
       return
     }
     animationFrame = requestAnimationFrame(frame)
@@ -204,6 +213,7 @@ function springTo(target: number, initialVelocity = 0) {
 }
 
 function selectMansion(index: number) {
+  emit('motion-start')
   const normalized = modulo(index, mansions.length)
   selectedIndex.value = normalized
   announceSelection()
@@ -264,6 +274,7 @@ function onPointerMove(event: PointerEvent) {
     if (distance < DRAG_THRESHOLD) return
     pointerCaptured = true
     dragging.value = true
+    emit('motion-start')
     try {
       svg.value?.setPointerCapture(event.pointerId)
     } catch {

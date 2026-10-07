@@ -8,6 +8,10 @@ import { resolveMansionReadings } from '../../../shared/mansion-navigation'
 const { isDark } = useData()
 const selectedMansion = ref({ name: '角', quadrant: '东方青龙', index: 0, missingCount: 0 })
 const selectedReadings = computed(() => resolveMansionReadings(mansionNavigation, selectedMansion.value.name))
+const pulseVersion = ref(0)
+const readingSettled = ref(false)
+function onOrbitSettled() { readingSettled.value = true; pulseVersion.value++ }
+function onOrbitMotionStart() { readingSettled.value = false }
 
 const q = ref('')
 const results = ref([])
@@ -112,7 +116,7 @@ onBeforeUnmount(() => {
       </header>
 
       <main class="celestial-stage">
-        <HomeConstellation @update:selected="selectedMansion = $event" />
+        <HomeConstellation @update:selected="selectedMansion = $event" @motion-start="onOrbitMotionStart" @settled="onOrbitSettled" />
         <div class="orbit-annotation" aria-hidden="true"><span>二十八宿 · 天球环</span><i></i><span>拖动星环，循天入书</span></div>
         <section class="hero">
           <p class="hero-kicker">个人医学学习整理</p>
@@ -154,9 +158,9 @@ onBeforeUnmount(() => {
             </transition>
           </div>
           <p class="orbit-selection"><span>{{ selectedMansion.quadrant }}</span><b>{{ selectedMansion.name }}宿</b><span class="orbit-count">{{ String(selectedMansion.index + 1).padStart(2, '0') }} / 28</span></p>
-          <nav class="mansion-readings" :aria-label="`${selectedMansion.name}宿阅读入口`">
-            <span>站内阅读导航</span>
-            <a v-for="reading in selectedReadings" :key="reading.id" :href="reading.href" :title="reading.description">{{ reading.title }} <span aria-hidden="true">↗</span></a>
+          <nav class="mansion-readings" :class="{ settled: readingSettled }" :data-settled="pulseVersion" :aria-label="`${selectedMansion.name}宿阅读入口`">
+            <span>点击阅读</span>
+            <a v-for="reading in selectedReadings" :key="`${reading.id}-${pulseVersion}`" :href="reading.href" :title="reading.description">{{ reading.title }} <span aria-hidden="true">↗</span></a>
             <span v-if="!selectedReadings.length">阅读内容待配置</span>
           </nav>
           <a class="star-source" href="/星图说明">{{ selectedMansion.missingCount ? `${selectedMansion.name}宿有 ${selectedMansion.missingCount} 颗待考 · ` : '' }}星图与资料来源 ↗</a>
