@@ -1,5 +1,8 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useData } from 'vitepress'
+
+const { isDark } = useData()
 
 const q = ref('')
 const results = ref([])
@@ -82,6 +85,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <div class="home-content">
   <!-- 星宿背景层：二十八宿按《步天歌》记载的星数形状排列
        东宫青龙（自上而下：角亢氐房心尾箕）｜北宫玄武（自西向东：斗牛女虚危室壁）
        西宫白虎（自上而下：奎娄胃昴毕觜参）｜南宫朱雀（自西向东：井鬼柳星张翼轸） -->
@@ -228,6 +232,9 @@ onBeforeUnmount(() => {
         <a href="/中药学/">中药学</a>
         <a href="/四大经典/">四大经典</a>
         <a href="/自测/">自测</a>
+        <button class="theme-toggle" type="button" :aria-label="isDark ? '切换到白天模式' : '切换到夜间模式'" @click="isDark = !isDark">
+          {{ isDark ? '☀' : '☾' }}
+        </button>
       </nav>
     </header>
 
@@ -341,5 +348,6 @@ onBeforeUnmount(() => {
       <p class="foot-motto">只做知识整理与检索 · 不做诊疗建议 · 内容可溯源古籍原文</p>
       <p>© 溯本医源 · yixuebiji.top</p>
     </footer>
+  </div>
   </div>
 </template>

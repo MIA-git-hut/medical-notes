@@ -271,7 +271,7 @@ watch([chapter, onlyUnknown], rebuild)
   padding: 28px;
   border: 1px solid var(--sby-border);
   border-radius: 16px;
-  background: linear-gradient(160deg, #161924, #10121c);
+  background: linear-gradient(160deg, var(--sby-bg-card), var(--sby-bg-surface));
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }

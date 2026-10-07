@@ -79,6 +79,7 @@ function autoSidebar(dir, label) {
 }
 
 export default defineConfig({
+  appearance: true,
   lang: 'zh-CN',
   title: '溯本医源',
   description: '中医知识整理与检索 · 溯源古籍原文',
@@ -157,7 +158,8 @@ export default defineConfig({
   },
 
   themeConfig: {
-    appearance: 'force-dark',
+    lightModeSwitchTitle: '切换到白天模式',
+    darkModeSwitchTitle: '切换到夜间模式',
     nav: [
       { text: '首页', link: '/' },
       { text: '中药学', link: '/中药学/' },

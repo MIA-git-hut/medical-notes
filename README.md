@@ -13,7 +13,7 @@
 
 ## 技术栈
 
-- [VitePress](https://vitepress.dev) 1.6（强制深色 + 自定义首页：黑蓝毛玻璃 / 步天歌星宿 / 四象图腾）
+- [VitePress](https://vitepress.dev) 1.6（支持白天／夜间切换 + 自定义首页：毛玻璃 / 步天歌星宿 / 四象图腾）
 - [Pagefind](https://pagefind.app) 全文检索，首页与导航栏均可搜索
   - 构建后由 `tools/patch_pagefind_lang.mjs` 固定查询语言（pagefind 索引端与浏览器端的中文分词不一致，会把「黄芪」切成「黄 芪」导致搜不到药名，详见该脚本注释）
 - DuckDB 工具链：`data/zhongyao.csv` ↔ `tools/` 查询脚本
