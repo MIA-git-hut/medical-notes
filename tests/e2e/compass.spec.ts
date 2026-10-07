@@ -199,3 +199,42 @@ test('mobile landscape keeps hero and orbit free of horizontal overflow', async 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
   await page.locator('.hero-actions a').first().click({ trial: true })
 })
+
+test.describe('native mobile touch gestures', () => {
+  test.use({ hasTouch: true, isMobile: true })
+  for (const width of [320, 390, 430]) {
+    test(`${width}px keeps both sides reachable and rotates with a real touch drag`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 })
+      await openHome(page)
+      const wheel = page.locator('.wheel-graphics')
+      const geometry = await page.locator('.celestial-orbit svg').evaluate(element => {
+        const rect = element.getBoundingClientRect()
+        return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2, radius: rect.width * 475 / 1180 }
+      })
+      const x = geometry.x + geometry.radius, y = geometry.y
+      expect(geometry.x - geometry.radius).toBeGreaterThan(24)
+      expect(x).toBeLessThan(width - 24)
+      for (const sideX of [geometry.x - geometry.radius, x]) {
+        expect(await page.evaluate(({ x, y }) => !!document.elementFromPoint(x, y)?.closest('.celestial-orbit'), { x: sideX, y })).toBe(true)
+      }
+      const client = await page.context().newCDPSession(page)
+      const initial = await wheel.getAttribute('transform')
+      await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 1 }] })
+      for (const angle of [-8, -16, -24, -32, -40]) {
+        await client.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{
+          x: geometry.x + geometry.radius * Math.cos(angle * Math.PI / 180),
+          y: geometry.y + geometry.radius * Math.sin(angle * Math.PI / 180), id: 1,
+        }] })
+      }
+      await expect(wheel).not.toHaveAttribute('transform', initial!)
+      await expect(page.getByTestId('constellation-dial')).toHaveClass(/dragging/)
+      await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+      await expect(page.getByTestId('constellation-dial')).not.toHaveClass(/dragging/)
+      expect(await page.evaluate(() => window.scrollY)).toBe(0)
+      await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: width / 2, y: 740, id: 2 }] })
+      for (const nextY of [690, 640, 590, 540]) await client.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: width / 2, y: nextY, id: 2 }] })
+      await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(50)
+    })
+  }
+})

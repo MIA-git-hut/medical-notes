@@ -470,6 +470,9 @@ onBeforeUnmount(() => {
   height: 1360px;
   color: var(--orbit-cyan);
   pointer-events: none;
+  /* Touch arbitration needs an HTML ancestor; SVG child rules alone allow native panning.
+     This wrapper cannot be hit itself, so only the interactive ring/stars claim gestures. */
+  touch-action: none;
   transform: translateX(-50%);
   outline: none;
   mask-image: linear-gradient(to bottom, transparent 18%, #000 36%, #000 62%, transparent 80%);
@@ -586,13 +589,15 @@ svg {
   white-space: nowrap;
   border: 0;
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-width: 900px) and (max-height: 500px) {
   .celestial-orbit {
     top: 155px;
-    width: 440px;
-    height: 440px;
+    width: min(440px, calc(100vw - 24px));
+    height: auto;
+    aspect-ratio: 1;
     mask-image: linear-gradient(to bottom, transparent 22%, #000 43%, #000 57%, transparent 78%);
   }
+  .interaction-ring { stroke-width: 180; }
   .label text { font-size: 18px; }
   .mansion.selected .label text { font-size: 24px; }
 }
