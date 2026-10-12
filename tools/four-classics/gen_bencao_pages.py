@@ -15,6 +15,11 @@ import os
 import re
 import sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+from norm_text import repl_only
+
 ROOT = r"D:\medical-notes"
 SRC = os.path.join(ROOT, "data", "四大经典", "源文", "manifest.json")
 NI = os.path.join(ROOT, "data", "四大经典", "讲稿", "本经_nihaixia.json")
@@ -93,6 +98,7 @@ def tidy(s):
     s = re.sub("(?<=[" + CJK + END_PUNCT + "])[0-9]{1,3}(?=[" + CJK + "])", "", s)
     s = re.sub("[0-9]{1,3}(?=[，。；：、）)])", "", s)
     s = re.sub("(?<=[（(])[0-9]{1,3}", "", s)
+    s = re.sub("^[0-9]{1,3}(?=[" + CJK + "])", "", s)
     s = re.sub("[0-9]{1,3}$", "", s)
     s = s.replace("　", "")
     return s.strip("。，、； 　")
@@ -303,7 +309,7 @@ def drug_page(u, e, wang):
     if name in wang:
         L.append(f"- 对照「十五五」规划教材《中药学》：[[{name}]]。")
     L.append("")
-    return "\n".join(L)
+    return repl_only("\n".join(L))
 
 
 def main():
