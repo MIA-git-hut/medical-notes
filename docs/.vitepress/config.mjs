@@ -168,6 +168,7 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '中药学', link: '/中药学/' },
+      { text: '知识图谱', link: '/中药学/图谱' },
       { text: '方剂学', link: '/方剂学/' },
       {
         text: '四大经典',

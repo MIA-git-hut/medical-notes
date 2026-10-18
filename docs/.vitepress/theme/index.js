@@ -6,6 +6,7 @@ import mediumZoom from 'medium-zoom'
 import './custom.css'
 import HomeContent from './HomeContent.vue'
 import Flashcard from './Flashcard.vue'
+import TcmGraph from './TcmGraph.vue'
 import StudyDashboard from './StudyDashboard.vue'
 import AdminDashboard from './AdminDashboard.vue'
 import { initConstellation, disposeConstellation } from './constellation'
@@ -36,6 +37,7 @@ export default {
     ctx.app.use(NolebaseEnhancedReadabilitiesPlugin)
     ctx.app.component('HomeContent', HomeContent)
     ctx.app.component('Flashcard', Flashcard)
+    ctx.app.component('TcmGraph', TcmGraph)
     ctx.app.component('StudyDashboard', StudyDashboard)
     ctx.app.component('AdminDashboard', AdminDashboard)
   },
